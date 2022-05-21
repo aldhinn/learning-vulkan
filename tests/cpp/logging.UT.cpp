@@ -33,11 +33,14 @@ namespace vk::tut {
     }
 
     TEST_F(LoggingTests, error_logs) {
+        char exception_detector = 0b00000000;
+
         try {
             VK_TUT_LOG_ERROR("Hello from error.");
         }
         catch(const ::std::exception& ex) {
             cout << "Execption thrown: \"" << ex.what() << "\"\n";
+            exception_detector = exception_detector | 0b00000001;
         }
 
         try {
@@ -45,6 +48,13 @@ namespace vk::tut {
         }
         catch(const ::std::exception& ex) {
             cout << "Execption thrown: \"" << ex.what() << "\"\n";
+            exception_detector = exception_detector | 0b00000010;
+        }
+
+        if (exception_detector != 0b00000011) {
+            throw ::std::runtime_error(
+                "VK_TUT_LOG_ERROR didn't throw an error at some point."
+            );
         }
     }
 }
