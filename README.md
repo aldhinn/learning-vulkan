@@ -6,7 +6,7 @@ This is my [Vulkan](https://www.vulkan.org/) learning journey.
 
 ## 👨‍💻 Development Environment
 
-Go to [this website](https://vulkan-tutorial.com/Development_environment) to setup your development environment according to your machine. This is also going to be my main resource of my learning journey.
+Go to [this website](https://vulkan-tutorial.com/Development_environment) to setup your development environment according to your machine. This website is also going to be the main guide for my learning journey.
 
 ## 📜 LICENCE
 This repository is under the [MIT Licene](./LICENCE)
