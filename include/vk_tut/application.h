@@ -8,6 +8,14 @@ namespace vk::tut {
     // Vulkan application data encapsulation.
     class Application {
     public:
+        // Default constructor.
+        Application();
+        // Code cleanup.
+        ~Application();
+
+        // Runs the application loop.
+        void run();
+
         // Prevent copying.
         inline Application(const Application&) = delete;
         // Prevent moving.
@@ -16,6 +24,8 @@ namespace vk::tut {
         inline Application& operator=(const Application&) = delete;
         // Prevent move re-assignment.
         inline Application& operator=(Application&&) = delete;
+    
+    private:
     };
 }
 
