@@ -50,12 +50,27 @@ namespace vk::tut {
         );
 
         cout << "\033[0;96m" << "GLFW Extensions Needed:" << "\033[0m\n";
-
         for (const char* extension : glfw_extensions) {
             cout << "\033[0;95m" << extension << "\033[0m\n";
         }
 
         // Terminate the GLFW library.
         glfwTerminate();
+    }
+
+    TEST_F(VulkanApiTests, print_available_layers) {
+        uint32_t available_layers_properties_count;
+        vkEnumerateInstanceLayerProperties(
+            &available_layers_properties_count, nullptr);
+
+        std::vector<VkLayerProperties> available_layers_properties(
+            available_layers_properties_count);
+        vkEnumerateInstanceLayerProperties(&available_layers_properties_count,
+            available_layers_properties.data());
+        
+        cout << "\033[0;96m" << "Names of Available Layers:" << "\033[0m\n";
+        for (const VkLayerProperties& layer_prop : available_layers_properties) {
+            cout << "\033[0;95m" << layer_prop.layerName << "\033[0m\n";
+        }
     }
 }
