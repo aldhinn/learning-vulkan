@@ -27,15 +27,24 @@ namespace vk::tut {
         // Second value is m_graphics_family_index.value()
         ::std::tuple<bool, uint32_t> get_graphics_family_index();
 
+        // Sets the value of m_present_family_index.
+        void set_present_family_index(uint32_t index);
+        // Get the value of the m_present_family_index.
+        // First value is true if m_present_family_index has value.
+        // Second value is m_present_family_index.value()
+        ::std::tuple<bool, uint32_t> get_present_family_index();
+
     private:
         // The index of a queue family that has the
         // VK_QUEUE_GRAPHICS_BIT raised in the queue flags.
         ::std::optional<uint32_t> m_graphics_family_index;
+        // The index of a queue family that has present support.
+        ::std::optional<uint32_t> m_present_family_index;
     };
 
     // Find the family indices of a specific physical device.
     QueueFamilyIndices find_family_indices(
-        const VkPhysicalDevice& physical_device
+        const VkPhysicalDevice& physical_device, const VkSurfaceKHR& surface
     );
 }
 

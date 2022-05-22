@@ -6,12 +6,11 @@
 namespace vk::tut {
     // If all the indices have value.
     bool QueueFamilyIndices::is_complete() {
-        return m_graphics_family_index.has_value();
+        return m_graphics_family_index.has_value() &&
+        m_present_family_index.has_value();
     }
 
-    // Sets the index of the family queue that
-    // has the VK_QUEUE_GRAPHICS_BIT raised
-    // in the queue flags.
+    // Sets the value of m_graphics_family_index.
     void QueueFamilyIndices::set_graphics_family_index(uint32_t index) {
         m_graphics_family_index = index;
     }
@@ -28,9 +27,25 @@ namespace vk::tut {
         return ::std::make_tuple(true, m_graphics_family_index.value());
     }
 
+    // Sets the value of m_present_family_index.
+    void QueueFamilyIndices::set_present_family_index(uint32_t index) {
+        m_present_family_index = index;
+    }
+
+    // Get the value of the m_present_family_index.
+    // First value is true if m_present_family_index has value.
+    // Second value is m_present_family_index.value()
+    ::std::tuple<bool, uint32_t> QueueFamilyIndices::get_present_family_index() {
+        if (!m_present_family_index.has_value()) {
+            return ::std::make_tuple(false, 0);
+        }
+
+        return ::std::make_tuple(true, m_present_family_index.value());
+    }
+
     // Find the family indices of a specific physical device.
     QueueFamilyIndices find_family_indices(
-        const VkPhysicalDevice& physical_device
+        const VkPhysicalDevice& physical_device, const VkSurfaceKHR& surface
     ) {
         QueueFamilyIndices result;
 
@@ -49,9 +64,17 @@ namespace vk::tut {
         // Loop through the queue_family_props
         for (const VkQueueFamilyProperties& queue_family_prop :
         queue_family_props) {
-            // Queueing for graphics capability.
+            // Querying for graphics capability.
             if (queue_family_prop.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
                 result.set_graphics_family_index(current_index);
+            }
+
+            // Querying for present support.
+            VkBool32 present_support = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(physical_device,
+                current_index, surface, &present_support);
+            if (present_support) {
+                result.set_present_family_index(current_index);
             }
 
             // If the desired indices are populated, then there would

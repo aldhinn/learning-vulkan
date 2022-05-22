@@ -7,20 +7,26 @@
 namespace vk::tut {
     // Default constructor.
     Application::Application() {
+        VK_TUT_LOG_DEBUG("...Initializing application data...");
+
         create_and_show_window();
         init_vulkan_instance();
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         setup_debug_messanger();
 #endif
+        create_surface();
         select_physical_devices();
         create_logical_devices();
+
+        VK_TUT_LOG_DEBUG("...FINISHED Initializing application data...");
     }
 
     // Code cleanup.
     Application::~Application() {
-        VK_TUT_LOG_DEBUG("Cleaning up application data...");
+        VK_TUT_LOG_DEBUG("...Cleaning up application data...");
 
         destroy_logical_devices();
+        destroy_surface();
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         destroy_debug_utils_messengerEXT(m_vulkan_instance,
             m_debug_messanger, nullptr);
@@ -28,7 +34,7 @@ namespace vk::tut {
         destroy_vulkan_instance();
         destroy_window();
 
-        VK_TUT_LOG_DEBUG("FINISHED cleaning up application data...");
+        VK_TUT_LOG_DEBUG("...FINISHED cleaning up application data...");
     }
 
     // Runs the application loop.
@@ -87,13 +93,20 @@ namespace vk::tut {
             glfwGetRequiredInstanceExtensions(&glfw_extensions_count);
         // Store the extension names to the required extensions.
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
-        ::std::vector<const char*> required_extensions(
-            glfw_extensions_count + 1
-        );
-        required_extensions.assign(glfw_extensions_count,
-            *glfw_extensions);
+        ::std::vector<const char*> required_extensions;
+        required_extensions.reserve(glfw_extensions_count + 1);
+        for (const char* extension :
+        ::std::vector<const char*>(glfw_extensions,
+        glfw_extensions + glfw_extensions_count)) {
+            required_extensions.emplace_back(extension);
+        }
         required_extensions.emplace_back(
             VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
+        // Print the names of the required extensions.
+        for (const char* extension : required_extensions) {
+            VK_TUT_LOG_TRACE(extension);
+        }
 // When validation layer is not enabled.
 #else
         ::std::vector<const char*> required_extensions(
@@ -137,6 +150,15 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("Successfully created a Vulkan instance.");
     }
 
+    void Application::create_surface() {
+        if (glfwCreateWindowSurface(m_vulkan_instance,
+        m_ptr_window, nullptr, &m_surface) != VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to create a surface.");
+        }
+
+        VK_TUT_LOG_DEBUG("Successfully created a surface.");
+    }
+
     void Application::select_physical_devices() {
         // Obtain the handles of the available physical devices.
         uint32_t available_physical_devices_count = 0;
@@ -152,7 +174,8 @@ namespace vk::tut {
         // Select a suitable physical device.
         for (const VkPhysicalDevice& physical_device :
         available_physical_devices) {
-            QueueFamilyIndices indices = find_family_indices(physical_device);
+            QueueFamilyIndices indices = find_family_indices(
+                physical_device, m_surface);
             bool physical_device_suitable = indices.is_complete();
 
             // Map the device if suitable.
@@ -178,7 +201,8 @@ namespace vk::tut {
         // logical device for each physical device.
         for (auto& [physical_device, logical_device] :
         m_device_map) {
-            QueueFamilyIndices indices = find_family_indices(physical_device);
+            QueueFamilyIndices indices = find_family_indices(
+                physical_device, m_surface);
             if (!indices.is_complete()) {
                 // If an unsuitable device somehow got through.
                 VK_TUT_LOG_ERROR("Unsuitable physical device.");
@@ -235,6 +259,12 @@ namespace vk::tut {
         }
 
         VK_TUT_LOG_DEBUG("Destroyed logical devices.");
+    }
+
+    void Application::destroy_surface() {
+        vkDestroySurfaceKHR(m_vulkan_instance, m_surface, nullptr);
+
+        VK_TUT_LOG_DEBUG("Destroyed surface.");
     }
 
     void Application::destroy_vulkan_instance() {

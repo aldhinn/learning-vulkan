@@ -65,6 +65,8 @@ namespace vk::tut {
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         VkDebugUtilsMessengerEXT m_debug_messanger;
 #endif
+        // The abstract surface to present render graphics to.
+        VkSurfaceKHR m_surface;
         // The map between selected physical devices
         // to their logical device handles.
         ::std::unordered_map<VkPhysicalDevice, VkDevice> m_device_map;
@@ -73,6 +75,7 @@ namespace vk::tut {
 
         void create_and_show_window();
         void init_vulkan_instance();
+        void create_surface();
         void select_physical_devices();
         void create_logical_devices();
 
@@ -81,6 +84,7 @@ namespace vk::tut {
         // < ------------------- Vulkan cleanup functions ------------------ >
 
         void destroy_logical_devices();
+        void destroy_surface();
         void destroy_vulkan_instance();
         void destroy_window();
 
