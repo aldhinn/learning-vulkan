@@ -2,6 +2,7 @@
 #include "vk_tut/logging.h"
 
 #include <cstring>
+#include <tuple>
 
 namespace vk::tut {
     // Default constructor.
@@ -12,12 +13,14 @@ namespace vk::tut {
         setup_debug_messanger();
 #endif
         select_physical_devices();
+        create_logical_devices();
     }
 
     // Code cleanup.
     Application::~Application() {
         VK_TUT_LOG_DEBUG("Cleaning up application data...");
 
+        destroy_logical_devices();
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         destroy_debug_utils_messengerEXT(m_vulkan_instance,
             m_debug_messanger, nullptr);
@@ -170,9 +173,69 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("Successfully found suitable physical devices.");
     }
 
+    void Application::create_logical_devices() {
+        // Loop through the device map and create the
+        // logical device for each physical device.
+        for (auto& [physical_device, logical_device] :
+        m_device_map) {
+            QueueFamilyIndices indices = find_family_indices(physical_device);
+            if (!indices.is_complete()) {
+                // If an unsuitable device somehow got through.
+                VK_TUT_LOG_ERROR("Unsuitable physical device.");
+            }
+
+            // Information about the device queues to be made.
+            VkDeviceQueueCreateInfo device_queue_info{};
+            device_queue_info.sType = VkStructureType
+                ::VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            device_queue_info.queueFamilyIndex = ::std::get<1>(
+                indices.get_graphics_family_index());
+            device_queue_info.queueCount = 1;
+            float queue_priority = 1.0f;
+            device_queue_info.pQueuePriorities = &queue_priority;
+
+            // Infomration about the device features to be enabled.
+            VkPhysicalDeviceFeatures enabled_device_features{};
+            
+            // Information about the logical device.
+            VkDeviceCreateInfo logical_device_info{};
+            logical_device_info.sType = VkStructureType
+                ::VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+            logical_device_info.queueCreateInfoCount = 1;
+            logical_device_info.pQueueCreateInfos = &device_queue_info;
+            logical_device_info.pEnabledFeatures = &enabled_device_features;
+#if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
+            logical_device_info.enabledLayerCount =
+                static_cast<uint32_t>(m_enabled_layers_names.size());
+            logical_device_info.ppEnabledLayerNames =
+                m_enabled_layers_names.data();
+#endif
+
+            if(vkCreateDevice(physical_device, &logical_device_info,
+            nullptr, &logical_device) != VK_SUCCESS) {
+                VK_TUT_LOG_ERROR(
+                    "Failed to create a logical device."
+                );
+            }
+        }
+
+        VK_TUT_LOG_DEBUG("Successfully created logical devices.");
+    }
+
     // < ------------------ END Vulkan initializtions ------------------ >
 
     // < ------------------- Vulkan cleanup functions ------------------ >
+
+    void Application::destroy_logical_devices() {
+        // Loop through the device map and destroy the
+        // logical device for each physical device.
+        for (auto& [physical_device, logical_device]:
+        m_device_map) {
+            vkDestroyDevice(logical_device, nullptr);
+        }
+
+        VK_TUT_LOG_DEBUG("Destroyed logical devices.");
+    }
 
     void Application::destroy_vulkan_instance() {
         // Destroy the vulkan instance handle.

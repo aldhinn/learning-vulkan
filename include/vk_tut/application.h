@@ -74,11 +74,13 @@ namespace vk::tut {
         void create_and_show_window();
         void init_vulkan_instance();
         void select_physical_devices();
+        void create_logical_devices();
 
         // < ------------------ END Vulkan initializtions ------------------ >
 
         // < ------------------- Vulkan cleanup functions ------------------ >
 
+        void destroy_logical_devices();
         void destroy_vulkan_instance();
         void destroy_window();
 
