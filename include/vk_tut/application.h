@@ -5,6 +5,7 @@
 #if defined(__cplusplus)
 
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.h>
 
 namespace vk::tut {
     // Vulkan application data encapsulation.
@@ -32,12 +33,15 @@ namespace vk::tut {
         const uint32_t WINDOW_WIDTH = 900, WINDOW_HEIGHT = 600;
         const char* WINDOW_TITLE = "Vulkan Tutorial Sandbox";
 
-        // The pointer to the GLFW window object.
+        // The GLFW window handle.
         GLFWwindow* m_ptr_window;
+        // The handle to the Vulkan library.
+        VkInstance m_vulkan_instance;
 
         // < -------------------- Vulkan initializtions -------------------- >
 
         void create_and_show_window();
+        void init_vulkan_instance();
 
         // < ------------------ END Vulkan initializtions ------------------ >
     };
