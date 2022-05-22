@@ -5,6 +5,7 @@
 #if defined(__cplusplus)
 #include <iostream>
 #include <stdexcept>
+#include <filesystem>
 
 // < --------------------------- Logging Macros --------------------------- >
 
@@ -12,8 +13,8 @@
 #if !defined(VK_TUT_LOG)
 #define VK_TUT_LOG(_LEVEL_, _COLOUR_CODE_, _OUTPUT_STREAM_, msg) \
 _OUTPUT_STREAM_ << #_COLOUR_CODE_ << "[" << #_LEVEL_ << "]\033[0m\t" \
-<< msg << "\t" << #_COLOUR_CODE_ << "[line " << __LINE__ << " of " \
-<< __FILE__ << "]\033[0m\n"
+<< msg << " " << #_COLOUR_CODE_ << "[line " << __LINE__ << " of " \
+<< ::std::filesystem::path(__FILE__).filename().string() << "]\033[0m\n"
 #endif
 
 // Trace log macro.

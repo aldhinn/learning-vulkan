@@ -17,13 +17,13 @@ namespace vk::tut {
         void run();
 
         // Prevent copying.
-        inline Application(const Application&) = delete;
+        inline constexpr Application(const Application&) = delete;
         // Prevent moving.
-        inline Application(Application&&) = delete;
+        inline constexpr Application(Application&&) = delete;
         // Prevent copy re-assignment.
-        inline Application& operator=(const Application&) = delete;
+        inline constexpr Application& operator=(const Application&) = delete;
         // Prevent move re-assignment.
-        inline Application& operator=(Application&&) = delete;
+        inline constexpr Application& operator=(Application&&) = delete;
     
     private:
     };
