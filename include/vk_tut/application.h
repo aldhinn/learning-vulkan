@@ -13,12 +13,15 @@
 #endif
 #endif
 
+#include "vk_tut/QueueFamilyIndices.h"
+
 // C++ only region.
 #if defined(__cplusplus)
 
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 #include <vector>
+#include <unordered_map>
 
 namespace vk::tut {
     // Vulkan application data encapsulation.
@@ -62,11 +65,15 @@ namespace vk::tut {
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         VkDebugUtilsMessengerEXT m_debug_messanger;
 #endif
+        // The map between selected physical devices
+        // to their logical device handles.
+        ::std::unordered_map<VkPhysicalDevice, VkDevice> m_device_map;
 
         // < -------------------- Vulkan initializtions -------------------- >
 
         void create_and_show_window();
         void init_vulkan_instance();
+        void select_physical_devices();
 
         // < ------------------ END Vulkan initializtions ------------------ >
 

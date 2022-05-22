@@ -63,7 +63,7 @@ namespace vk::tut {
         vkEnumerateInstanceLayerProperties(
             &available_layers_properties_count, nullptr);
 
-        std::vector<VkLayerProperties> available_layers_properties(
+        ::std::vector<VkLayerProperties> available_layers_properties(
             available_layers_properties_count);
         vkEnumerateInstanceLayerProperties(&available_layers_properties_count,
             available_layers_properties.data());
@@ -71,6 +71,30 @@ namespace vk::tut {
         cout << "\033[0;96m" << "Names of Available Layers:" << "\033[0m\n";
         for (const VkLayerProperties& layer_prop : available_layers_properties) {
             cout << "\033[0;95m" << layer_prop.layerName << "\033[0m\n";
+        }
+    }
+
+    TEST_F(VulkanApiTests, print_available_physical_devices) {
+        // Obtain the handles of the available physical devices.
+        uint32_t available_physical_devices_count = 0;
+        vkEnumeratePhysicalDevices(m_vulkan_instance,
+            &available_physical_devices_count, nullptr);
+        ::std::vector<VkPhysicalDevice> available_physical_devices(
+            available_physical_devices_count
+        );
+        vkEnumeratePhysicalDevices(m_vulkan_instance,
+            &available_physical_devices_count,
+            available_physical_devices.data());
+
+        cout << "\033[0;96m" << "Names of Available Physical Devices:"
+            << "\033[0m\n";
+        for (const VkPhysicalDevice& physical_device :
+        available_physical_devices) {
+            VkPhysicalDeviceProperties physical_device_props{};
+            vkGetPhysicalDeviceProperties(physical_device,
+                &physical_device_props);
+            cout << "\033[0;95m" << physical_device_props.deviceName
+                << "\033[0m\n";
         }
     }
 }

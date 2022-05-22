@@ -11,6 +11,7 @@ namespace vk::tut {
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         setup_debug_messanger();
 #endif
+        select_physical_devices();
     }
 
     // Code cleanup.
@@ -124,6 +125,40 @@ namespace vk::tut {
         if (vkCreateInstance(&vulkan_instance_info, nullptr,
         &m_vulkan_instance) != VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to create vulkan instance.");
+        }
+    }
+
+    void Application::select_physical_devices() {
+        // Obtain the handles of the available physical devices.
+        uint32_t available_physical_devices_count = 0;
+        vkEnumeratePhysicalDevices(m_vulkan_instance,
+            &available_physical_devices_count, nullptr);
+        ::std::vector<VkPhysicalDevice> available_physical_devices(
+            available_physical_devices_count
+        );
+        vkEnumeratePhysicalDevices(m_vulkan_instance,
+            &available_physical_devices_count,
+            available_physical_devices.data());
+        
+        // Select a suitable physical device.
+        for (const VkPhysicalDevice& physical_device :
+        available_physical_devices) {
+            QueueFamilyIndices indices = find_family_indices(physical_device);
+            bool physical_device_suitable = indices.is_complete();
+
+            // Map the device if suitable.
+            if (physical_device_suitable) {
+                // The corresponding logical device for the physical device.
+                VkDevice logical_device;
+                // Place in the map.
+                m_device_map.emplace(physical_device, logical_device);
+            }
+        }
+
+        if (m_device_map.size() == 0) {
+            VK_TUT_LOG_ERROR(
+                "Failed to find a suitable physical device."
+            );
         }
     }
 
