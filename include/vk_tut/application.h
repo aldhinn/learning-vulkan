@@ -77,6 +77,13 @@ namespace vk::tut {
 
         // < ------------------ END Vulkan initializtions ------------------ >
 
+        // < ------------------- Vulkan cleanup functions ------------------ >
+
+        void destroy_vulkan_instance();
+        void destroy_window();
+
+        // < ----------------- END Vulkan cleanup functions ---------------- >
+
         // < --------------- Validation layer initializations -------------- >
 
 // These functions will be declared and defined if and

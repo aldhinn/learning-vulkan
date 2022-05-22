@@ -16,20 +16,22 @@ namespace vk::tut {
 
     // Code cleanup.
     Application::~Application() {
+        VK_TUT_LOG_DEBUG("Cleaning up application data...");
+
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         destroy_debug_utils_messengerEXT(m_vulkan_instance,
             m_debug_messanger, nullptr);
 #endif
-        // Destroy the vulkan instance handle.
-        vkDestroyInstance(m_vulkan_instance, nullptr);
-        // Destroy the GLFW window that was created.
-        glfwDestroyWindow(m_ptr_window);
-        // Terminate the GLFW library.
-        glfwTerminate();
+        destroy_vulkan_instance();
+        destroy_window();
+
+        VK_TUT_LOG_DEBUG("FINISHED cleaning up application data...");
     }
 
     // Runs the application loop.
     void Application::run() {
+        VK_TUT_LOG_DEBUG("Running the application.");
+
         // The main application loop.
         // This keeps running until a close event is received by
         // the GLFW API.
@@ -53,6 +55,8 @@ namespace vk::tut {
         // Create the GLFW Window.
         m_ptr_window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT,
             WINDOW_TITLE, nullptr, nullptr);
+
+        VK_TUT_LOG_DEBUG("Created and showed the window.");
     }
 
     void Application::init_vulkan_instance() {
@@ -126,6 +130,8 @@ namespace vk::tut {
         &m_vulkan_instance) != VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to create vulkan instance.");
         }
+
+        VK_TUT_LOG_DEBUG("Successfully created a Vulkan instance.");
     }
 
     void Application::select_physical_devices() {
@@ -160,9 +166,31 @@ namespace vk::tut {
                 "Failed to find a suitable physical device."
             );
         }
+
+        VK_TUT_LOG_DEBUG("Successfully found suitable physical devices.");
     }
 
     // < ------------------ END Vulkan initializtions ------------------ >
+
+    // < ------------------- Vulkan cleanup functions ------------------ >
+
+    void Application::destroy_vulkan_instance() {
+        // Destroy the vulkan instance handle.
+        vkDestroyInstance(m_vulkan_instance, nullptr);
+
+        VK_TUT_LOG_DEBUG("Destroyed the Vulkan Instance.");
+    }
+
+    void Application::destroy_window() {
+        // Destroy the GLFW window that was created.
+        glfwDestroyWindow(m_ptr_window);
+        // Terminate the GLFW library.
+        glfwTerminate();
+
+        VK_TUT_LOG_DEBUG("Destroyed the GLFW Window and terminated GLFW.");
+    }
+
+    // < ----------------- END Vulkan cleanup functions ---------------- >
 
     // < --------------- Validation layer initializations -------------- >
 
@@ -184,7 +212,10 @@ namespace vk::tut {
             // If VK_LAYER_KHRONOS_validation layer is available,
             // then validation layer is supported.
             if (strcmp("VK_LAYER_KHRONOS_validation",
-                layer_prop.layerName) == 0) return true;
+            layer_prop.layerName) == 0) {
+                VK_TUT_LOG_DEBUG("Validation layer is supported");
+                return true;
+            }
         }
 
         return false;
@@ -200,6 +231,8 @@ namespace vk::tut {
                 "Failed to create debug messanger."
             );
         }
+
+        VK_TUT_LOG_DEBUG("Successfully created debug messanger.");
     }
 
 #endif
@@ -244,6 +277,7 @@ namespace vk::tut {
             vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
         if (func != nullptr) {
             func(instance, debug_messenger, ptr_allocator);
+            VK_TUT_LOG_DEBUG("Destroyed the debug messanger.");
         }
     }
 

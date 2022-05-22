@@ -1,4 +1,5 @@
 #include "vk_tut/QueueFamilyIndices.h"
+#include "vk_tut/logging.h"
 
 #include <vector>
 
@@ -56,12 +57,14 @@ namespace vk::tut {
             // If the desired indices are populated, then there would
             // be no reason to loop through for more.
             if (result.is_complete()) {
+                VK_TUT_LOG_DEBUG("Complete QueueFamilyIndices.");
                 return result;
             }
 
             current_index++;
         }
 
+        VK_TUT_LOG_DEBUG("Incomplete QueueFamilyIndices.");
         return result;
     }
 }
