@@ -17,6 +17,7 @@ endif()
 
 find_package(GTest REQUIRED)
 find_package(Vulkan REQUIRED)
+find_package(glfw3 REQUIRED)
 
 # < --------------------------- END Dependencies -------------------------- >
 
@@ -36,6 +37,7 @@ target_include_directories(
 target_link_libraries(
     learning_vulkan_lib PUBLIC
     vulkan
+    glfw
 )
 
 # < -------------- END learning_vulkan_lib target definition -------------- >
