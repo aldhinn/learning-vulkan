@@ -8,6 +8,7 @@
 #include <optional>
 #include <cstdlib>
 #include <tuple>
+#include <vector>
 
 namespace vk::tut {
     // The indices of a certain physical device queue
@@ -19,6 +20,8 @@ namespace vk::tut {
 
         // If all the desired indices have value.
         bool is_complete();
+        // Return the unique queue family indices.
+        ::std::vector<uint32_t> get_unique_queue_family_indices();
 
         // Sets the value of m_graphics_family_index.
         void set_graphics_family_index(uint32_t index);

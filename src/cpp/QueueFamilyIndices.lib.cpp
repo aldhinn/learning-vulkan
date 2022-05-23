@@ -10,6 +10,20 @@ namespace vk::tut {
         m_present_family_index.has_value();
     }
 
+    // Return the unique queue family indices.
+    ::std::vector<uint32_t> QueueFamilyIndices
+    ::get_unique_queue_family_indices() {
+        ::std::vector<uint32_t> result;
+
+        // Simply return an empty vector if incomplete.
+        if (!is_complete()) return result;
+
+        result.emplace_back(m_graphics_family_index.value());
+        result.emplace_back(m_present_family_index.value());
+
+        return result;
+    }
+
     // Sets the value of m_graphics_family_index.
     void QueueFamilyIndices::set_graphics_family_index(uint32_t index) {
         m_graphics_family_index = index;

@@ -70,6 +70,9 @@ namespace vk::tut {
         // The map between selected physical devices
         // to their logical device handles.
         ::std::unordered_map<VkPhysicalDevice, VkDevice> m_device_map;
+        // The presentation queues mapped to
+        // their corresponding logical device pointers.
+        ::std::unordered_map<VkDevice*, VkQueue> m_present_queues;
 
         // < -------------------- Vulkan initializtions -------------------- >
 

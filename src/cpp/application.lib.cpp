@@ -208,15 +208,24 @@ namespace vk::tut {
                 VK_TUT_LOG_ERROR("Unsuitable physical device.");
             }
 
-            // Information about the device queues to be made.
-            VkDeviceQueueCreateInfo device_queue_info{};
-            device_queue_info.sType = VkStructureType
-                ::VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-            device_queue_info.queueFamilyIndex = ::std::get<1>(
-                indices.get_graphics_family_index());
-            device_queue_info.queueCount = 1;
+            ::std::vector<uint32_t> unique_family_indices =
+                indices.get_unique_queue_family_indices();
             float queue_priority = 1.0f;
-            device_queue_info.pQueuePriorities = &queue_priority;
+
+            // Information about the device queues to be made.
+            ::std::vector<VkDeviceQueueCreateInfo> device_queue_infos;
+            // Loop through the unique family indices
+            // to populate the device_queue_infos
+            for (const uint32_t& index : unique_family_indices) {
+                VkDeviceQueueCreateInfo device_queue_info{};
+                device_queue_info.sType = VkStructureType
+                    ::VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+                device_queue_info.queueFamilyIndex = index;
+                device_queue_info.queueCount = 1;
+                device_queue_info.pQueuePriorities = &queue_priority;
+
+                device_queue_infos.emplace_back(device_queue_info);
+            }
 
             // Infomration about the device features to be enabled.
             VkPhysicalDeviceFeatures enabled_device_features{};
@@ -225,8 +234,10 @@ namespace vk::tut {
             VkDeviceCreateInfo logical_device_info{};
             logical_device_info.sType = VkStructureType
                 ::VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-            logical_device_info.queueCreateInfoCount = 1;
-            logical_device_info.pQueueCreateInfos = &device_queue_info;
+            logical_device_info.queueCreateInfoCount =
+                static_cast<uint32_t>(device_queue_infos.size());
+            logical_device_info.pQueueCreateInfos =
+                device_queue_infos.data();
             logical_device_info.pEnabledFeatures = &enabled_device_features;
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
             logical_device_info.enabledLayerCount =
@@ -235,12 +246,21 @@ namespace vk::tut {
                 m_enabled_layers_names.data();
 #endif
 
+            // Create the logical device.
             if(vkCreateDevice(physical_device, &logical_device_info,
             nullptr, &logical_device) != VK_SUCCESS) {
                 VK_TUT_LOG_ERROR(
                     "Failed to create a logical device."
                 );
             }
+
+            // Retrieve the present queue handle.
+            VkQueue present_queue;
+            vkGetDeviceQueue(logical_device,
+                ::std::get<1>(indices.get_present_family_index()),
+                0, &present_queue);
+            // Map the logical device to the present queue.
+            m_present_queues.emplace(&logical_device, present_queue);
         }
 
         VK_TUT_LOG_DEBUG("Successfully created logical devices.");
