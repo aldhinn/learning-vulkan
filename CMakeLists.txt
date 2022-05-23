@@ -15,9 +15,26 @@ endif()
 
 # < ----------------------------- Dependencies ---------------------------- >
 
-find_package(GTest REQUIRED)
 find_package(Vulkan REQUIRED)
-find_package(glfw3 REQUIRED)
+find_package(GTest)
+if (NOT GTest_FOUND)
+    # Will add the submodule for googletest if not installed in the system.  
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/googletest/)
+endif()
+find_package(glfw3)
+if (NOT glfw3_FOUND)
+    # Will add the submodule for glfw if not installed in the system.
+    set(GLFW_BUILD_EXAMPLES OFF)
+    set(GLFW_BUILD_TESTS OFF)
+    set(GLFW_BUILD_DOCS OFF)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw/)
+endif()
+find_package(glm)
+if (NOT glm_FOUND)
+    # Will add the submodule for glm if not installed in the system.
+    set(GLM_TEST_ENABLE OFF)
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm/)
+endif()
 
 # < --------------------------- END Dependencies -------------------------- >
 
@@ -33,11 +50,13 @@ add_library(
 target_include_directories(
     learning_vulkan_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    ${Vulkan_INCLUDE_DIR}
 )
 target_link_libraries(
     learning_vulkan_lib PUBLIC
-    vulkan
+    ${Vulkan_LIBRARIES}
     glfw
+    glm::glm
 )
 
 # < -------------- END learning_vulkan_lib target definition -------------- >
