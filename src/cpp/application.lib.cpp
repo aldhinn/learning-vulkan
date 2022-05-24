@@ -3,6 +3,8 @@
 
 #include <cstring>
 #include <tuple>
+#include <set>
+#include <string>
 
 namespace vk::tut {
     // Default constructor.
@@ -12,11 +14,12 @@ namespace vk::tut {
         create_and_show_window();
         init_vulkan_instance();
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
-        setup_debug_messanger();
+        setup_debug_messenger();
 #endif
         create_surface();
         select_physical_devices();
         create_logical_devices();
+        create_swapchain();
 
         VK_TUT_LOG_DEBUG("...FINISHED Initializing application data...");
     }
@@ -25,11 +28,12 @@ namespace vk::tut {
     Application::~Application() {
         VK_TUT_LOG_DEBUG("...Cleaning up application data...");
 
+        destroy_swapchain();
         destroy_logical_devices();
         destroy_surface();
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         destroy_debug_utils_messengerEXT(m_vulkan_instance,
-            m_debug_messanger, nullptr);
+            m_debug_messenger, nullptr);
 #endif
         destroy_vulkan_instance();
         destroy_window();
@@ -49,7 +53,7 @@ namespace vk::tut {
         }
     }
 
-    // < -------------------- Vulkan initializtions -------------------- >
+    // < -------------------- Vulkan initializations ------------------- >
 
     void Application::create_and_show_window() {
         // Initialize the GLFW library.
@@ -104,6 +108,7 @@ namespace vk::tut {
             VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
         // Print the names of the required extensions.
+        VK_TUT_LOG_TRACE("Tracing value of required extensions...");
         for (const char* extension : required_extensions) {
             VK_TUT_LOG_TRACE(extension);
         }
@@ -115,12 +120,12 @@ namespace vk::tut {
         );
 #endif
 
-        // Debug messanger for the vulkan instance creation.
+        // Debug messenger for the vulkan instance creation.
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         VkDebugUtilsMessengerCreateInfoEXT
-            vulkan_instance_creation_debug_messanger_info{};
-        populate_debug_utils_messanger_info(
-            vulkan_instance_creation_debug_messanger_info);
+            vulkan_instance_creation_debug_messenger_info{};
+        populate_debug_utils_messenger_info(
+            vulkan_instance_creation_debug_messenger_info);
 #endif
 
         // Information about the vulkan instance to be created.
@@ -138,7 +143,7 @@ namespace vk::tut {
         vulkan_instance_info.ppEnabledLayerNames =
             m_enabled_layers_names.data();
         vulkan_instance_info.pNext =
-            &vulkan_instance_creation_debug_messanger_info;
+            &vulkan_instance_creation_debug_messenger_info;
 #endif
 
         // Create the Vulkan instance.
@@ -176,7 +181,10 @@ namespace vk::tut {
         available_physical_devices) {
             QueueFamilyIndices indices = find_family_indices(
                 physical_device, m_surface);
-            bool physical_device_suitable = indices.is_complete();
+            
+            bool physical_device_suitable = indices.is_complete() &&
+                check_device_extension_support(physical_device,
+                m_enabled_extensions);
 
             // Map the device if suitable.
             if (physical_device_suitable) {
@@ -227,7 +235,7 @@ namespace vk::tut {
                 device_queue_infos.emplace_back(device_queue_info);
             }
 
-            // Infomration about the device features to be enabled.
+            // Information about the device features to be enabled.
             VkPhysicalDeviceFeatures enabled_device_features{};
             
             // Information about the logical device.
@@ -239,6 +247,10 @@ namespace vk::tut {
             logical_device_info.pQueueCreateInfos =
                 device_queue_infos.data();
             logical_device_info.pEnabledFeatures = &enabled_device_features;
+            logical_device_info.enabledExtensionCount =
+                static_cast<uint32_t>(m_enabled_extensions.size());
+            logical_device_info.ppEnabledExtensionNames =
+                m_enabled_extensions.data();
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
             logical_device_info.enabledLayerCount =
                 static_cast<uint32_t>(m_enabled_layers_names.size());
@@ -266,9 +278,21 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("Successfully created logical devices.");
     }
 
-    // < ------------------ END Vulkan initializtions ------------------ >
+    void Application::create_swapchain() {
+        // TODO : Implement.
+
+        VK_TUT_LOG_DEBUG("Successfully created swapchain.");
+    }
+
+    // < ------------------ END Vulkan initializations ----------------- >
 
     // < ------------------- Vulkan cleanup functions ------------------ >
+
+    void Application::destroy_swapchain() {
+        // TODO : Implement.
+
+        VK_TUT_LOG_DEBUG("Destroyed swapchain.");
+    }
 
     void Application::destroy_logical_devices() {
         // Loop through the device map and destroy the
@@ -305,6 +329,37 @@ namespace vk::tut {
 
     // < ----------------- END Vulkan cleanup functions ---------------- >
 
+    // < ----------------------- Helper functions ---------------------- >
+
+    bool check_device_extension_support(
+        const VkPhysicalDevice& physical_device,
+        const ::std::vector<const char*>& required_extensions
+    ) {
+        // Retrieve the extensions for the specified physical device.
+        uint32_t physical_device_extensions_count = 0;
+        vkEnumerateDeviceExtensionProperties(physical_device,
+            nullptr, &physical_device_extensions_count, nullptr);
+        ::std::vector<VkExtensionProperties> physical_device_extensions(
+            physical_device_extensions_count
+        );
+        vkEnumerateDeviceExtensionProperties(physical_device,
+            nullptr, &physical_device_extensions_count,
+            physical_device_extensions.data());
+        
+        // The required_extensions_set will be empty
+        // if they all exist in the physical_device_extensions
+        ::std::set<::std::string> required_extensions_set(
+            required_extensions.begin(), required_extensions.end());
+        for (const VkExtensionProperties& extension_prop :
+        physical_device_extensions) {
+            required_extensions_set.erase(extension_prop.extensionName);
+        }
+
+        return required_extensions_set.empty();
+    }
+
+    // < --------------------- END Helper functions -------------------- >
+
     // < --------------- Validation layer initializations -------------- >
 
 // These functions will be declared and defined if and
@@ -334,18 +389,18 @@ namespace vk::tut {
         return false;
     }
 
-    void Application::setup_debug_messanger() {
-        VkDebugUtilsMessengerCreateInfoEXT debug_messanger_info{};
-        populate_debug_utils_messanger_info(debug_messanger_info);
+    void Application::setup_debug_messenger() {
+        VkDebugUtilsMessengerCreateInfoEXT debug_messenger_info{};
+        populate_debug_utils_messenger_info(debug_messenger_info);
 
         if (create_debug_utils_messengerEXT(m_vulkan_instance,
-        &debug_messanger_info, nullptr, &m_debug_messanger) != VK_SUCCESS) {
+        &debug_messenger_info, nullptr, &m_debug_messenger) != VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
-                "Failed to create debug messanger."
+                "Failed to create debug messenger."
             );
         }
 
-        VK_TUT_LOG_DEBUG("Successfully created debug messanger.");
+        VK_TUT_LOG_DEBUG("Successfully created debug messenger.");
     }
 
 #endif
@@ -390,7 +445,7 @@ namespace vk::tut {
             vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
         if (func != nullptr) {
             func(instance, debug_messenger, ptr_allocator);
-            VK_TUT_LOG_DEBUG("Destroyed the debug messanger.");
+            VK_TUT_LOG_DEBUG("Destroyed the debug messenger.");
         }
     }
 
@@ -406,20 +461,19 @@ namespace vk::tut {
         return VK_FALSE;
     }
 
-    void populate_debug_utils_messanger_info(
-        VkDebugUtilsMessengerCreateInfoEXT& ref_debug_messanger_info
+    void populate_debug_utils_messenger_info(
+        VkDebugUtilsMessengerCreateInfoEXT& ref_debug_messenger_info
     ) {
-        ref_debug_messanger_info.sType = VkStructureType
+        ref_debug_messenger_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        ref_debug_messanger_info.messageSeverity =
+        ref_debug_messenger_info.messageSeverity =
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        ref_debug_messanger_info.messageType =
-            VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+        ref_debug_messenger_info.messageType =
             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        ref_debug_messanger_info.pfnUserCallback = debug_callback;
+        ref_debug_messenger_info.pfnUserCallback = debug_callback;
     }
 
 #endif

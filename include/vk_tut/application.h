@@ -59,11 +59,11 @@ namespace vk::tut {
             "VK_LAYER_KHRONOS_validation"
         };
 #endif
-        // The debug messanger.
+        // The debug messenger.
         // Only declared and defined when
         // _VK_TUT_VALIDATION_LAYER_ENABLED_ is defined.
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
-        VkDebugUtilsMessengerEXT m_debug_messanger;
+        VkDebugUtilsMessengerEXT m_debug_messenger;
 #endif
         // The abstract surface to present render graphics to.
         VkSurfaceKHR m_surface;
@@ -73,19 +73,25 @@ namespace vk::tut {
         // The presentation queues mapped to
         // their corresponding logical device pointers.
         ::std::unordered_map<VkDevice*, VkQueue> m_present_queues;
+        // List of enabled device extensions.
+        const ::std::vector<const char*> m_enabled_extensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME
+        };
 
-        // < -------------------- Vulkan initializtions -------------------- >
+        // < -------------------- Vulkan initializations ------------------- >
 
         void create_and_show_window();
         void init_vulkan_instance();
         void create_surface();
         void select_physical_devices();
         void create_logical_devices();
+        void create_swapchain();
 
-        // < ------------------ END Vulkan initializtions ------------------ >
+        // < ------------------ END Vulkan initializations ----------------- >
 
         // < ------------------- Vulkan cleanup functions ------------------ >
 
+        void destroy_swapchain();
         void destroy_logical_devices();
         void destroy_surface();
         void destroy_vulkan_instance();
@@ -99,12 +105,21 @@ namespace vk::tut {
 // only if _VK_TUT_VALIDATION_LAYER_ENABLED_ is defined
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         bool check_validation_layer_support();
-        void setup_debug_messanger();
+        void setup_debug_messenger();
 #endif
 // End #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
 
         // < ------------- END Validation layer initializations ------------ >
     };
+
+    // < ----------------------- Helper functions ---------------------- >
+
+    bool check_device_extension_support(
+        const VkPhysicalDevice& physical_device,
+        const ::std::vector<const char*>& required_extensions
+    );
+
+    // < --------------------- END Helper functions -------------------- >
 
     // < -------------- Validation layer helper functions -------------- >
 
@@ -128,8 +143,8 @@ namespace vk::tut {
         const VkDebugUtilsMessengerCallbackDataEXT* ptr_callback_data,
         void* ptr_user_data
     );
-    void populate_debug_utils_messanger_info(
-        VkDebugUtilsMessengerCreateInfoEXT& ref_debug_messanger_info
+    void populate_debug_utils_messenger_info(
+        VkDebugUtilsMessengerCreateInfoEXT& ref_debug_messenger_info
     );
 #endif
 // End #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
