@@ -1,5 +1,7 @@
 #include "vk_tut/application.h"
 #include "vk_tut/logging.h"
+#include "vk_tut/SwapChainSupportDetails.h"
+#include "vk_tut/QueueFamilyIndices.h"
 
 #include <cstring>
 #include <tuple>
@@ -17,8 +19,8 @@ namespace vk::tut {
         setup_debug_messenger();
 #endif
         create_surface();
-        select_physical_devices();
-        create_logical_devices();
+        select_physical_device();
+        create_logical_device();
         create_swapchain();
 
         VK_TUT_LOG_DEBUG("...FINISHED Initializing application data...");
@@ -29,7 +31,7 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("...Cleaning up application data...");
 
         destroy_swapchain();
-        destroy_logical_devices();
+        destroy_logical_device();
         destroy_surface();
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         destroy_debug_utils_messengerEXT(m_vulkan_instance,
@@ -164,7 +166,7 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("Successfully created a surface.");
     }
 
-    void Application::select_physical_devices() {
+    void Application::select_physical_device() {
         // Obtain the handles of the available physical devices.
         uint32_t available_physical_devices_count = 0;
         vkEnumeratePhysicalDevices(m_vulkan_instance,
@@ -181,101 +183,95 @@ namespace vk::tut {
         available_physical_devices) {
             QueueFamilyIndices indices = find_family_indices(
                 physical_device, m_surface);
+
+            SwapChainSupportDetails swapchain_support_details =
+                query_swapchain_support(physical_device, m_surface);
             
             bool physical_device_suitable = indices.is_complete() &&
                 check_device_extension_support(physical_device,
-                m_enabled_extensions);
+                m_enabled_extensions) &&
+                swapchain_support_details.is_swapchain_support_adequate();
 
-            // Map the device if suitable.
+            // Select the suitable device.
             if (physical_device_suitable) {
-                // The corresponding logical device for the physical device.
-                VkDevice logical_device;
-                // Place in the map.
-                m_device_map.emplace(physical_device, logical_device);
+                m_physical_device = physical_device;
+                VK_TUT_LOG_DEBUG(
+                    "Successfully found a suitable physical device."
+                );
+                return;
             }
         }
+        
+        VK_TUT_LOG_ERROR(
+            "Failed to find a suitable physical device."
+        );
+    }
 
-        if (m_device_map.size() == 0) {
+    void Application::create_logical_device() {
+        QueueFamilyIndices indices = find_family_indices(
+            m_physical_device, m_surface);
+        if (!indices.is_complete()) {
+            // If an unsuitable device somehow got through.
+            VK_TUT_LOG_ERROR("Unsuitable physical device.");
+        }
+
+        ::std::vector<uint32_t> unique_family_indices =
+            indices.get_unique_queue_family_indices();
+        float queue_priority = 1.0f;
+
+        // Information about the device queues to be made.
+        ::std::vector<VkDeviceQueueCreateInfo> device_queue_infos;
+        // Loop through the unique family indices
+        // to populate the device_queue_infos
+        for (const uint32_t& index : unique_family_indices) {
+            VkDeviceQueueCreateInfo device_queue_info{};
+            device_queue_info.sType = VkStructureType
+                ::VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            device_queue_info.queueFamilyIndex = index;
+            device_queue_info.queueCount = 1;
+            device_queue_info.pQueuePriorities = &queue_priority;
+
+            device_queue_infos.emplace_back(device_queue_info);
+        }
+
+        // Information about the device features to be enabled.
+        VkPhysicalDeviceFeatures enabled_device_features{};
+
+        // Information about the logical device.
+        VkDeviceCreateInfo logical_device_info{};
+        logical_device_info.sType = VkStructureType
+            ::VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        logical_device_info.queueCreateInfoCount =
+            static_cast<uint32_t>(device_queue_infos.size());
+        logical_device_info.pQueueCreateInfos =
+            device_queue_infos.data();
+        logical_device_info.pEnabledFeatures = &enabled_device_features;
+        logical_device_info.enabledExtensionCount =
+            static_cast<uint32_t>(m_enabled_extensions.size());
+        logical_device_info.ppEnabledExtensionNames =
+            m_enabled_extensions.data();
+#if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
+        logical_device_info.enabledLayerCount =
+            static_cast<uint32_t>(m_enabled_layers_names.size());
+        logical_device_info.ppEnabledLayerNames =
+            m_enabled_layers_names.data();
+#endif
+        
+        // Create the logical device.
+        if(vkCreateDevice(m_physical_device, &logical_device_info,
+        nullptr, &m_logical_device) != VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
-                "Failed to find a suitable physical device."
+                "Failed to create a logical device."
             );
         }
 
-        VK_TUT_LOG_DEBUG("Successfully found suitable physical devices.");
-    }
+        // Retrieve the present queue handle.
+        vkGetDeviceQueue(m_logical_device,
+            ::std::get<1>(indices.get_present_family_index()),
+            0, &m_present_queue
+        );
 
-    void Application::create_logical_devices() {
-        // Loop through the device map and create the
-        // logical device for each physical device.
-        for (auto& [physical_device, logical_device] :
-        m_device_map) {
-            QueueFamilyIndices indices = find_family_indices(
-                physical_device, m_surface);
-            if (!indices.is_complete()) {
-                // If an unsuitable device somehow got through.
-                VK_TUT_LOG_ERROR("Unsuitable physical device.");
-            }
-
-            ::std::vector<uint32_t> unique_family_indices =
-                indices.get_unique_queue_family_indices();
-            float queue_priority = 1.0f;
-
-            // Information about the device queues to be made.
-            ::std::vector<VkDeviceQueueCreateInfo> device_queue_infos;
-            // Loop through the unique family indices
-            // to populate the device_queue_infos
-            for (const uint32_t& index : unique_family_indices) {
-                VkDeviceQueueCreateInfo device_queue_info{};
-                device_queue_info.sType = VkStructureType
-                    ::VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-                device_queue_info.queueFamilyIndex = index;
-                device_queue_info.queueCount = 1;
-                device_queue_info.pQueuePriorities = &queue_priority;
-
-                device_queue_infos.emplace_back(device_queue_info);
-            }
-
-            // Information about the device features to be enabled.
-            VkPhysicalDeviceFeatures enabled_device_features{};
-            
-            // Information about the logical device.
-            VkDeviceCreateInfo logical_device_info{};
-            logical_device_info.sType = VkStructureType
-                ::VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-            logical_device_info.queueCreateInfoCount =
-                static_cast<uint32_t>(device_queue_infos.size());
-            logical_device_info.pQueueCreateInfos =
-                device_queue_infos.data();
-            logical_device_info.pEnabledFeatures = &enabled_device_features;
-            logical_device_info.enabledExtensionCount =
-                static_cast<uint32_t>(m_enabled_extensions.size());
-            logical_device_info.ppEnabledExtensionNames =
-                m_enabled_extensions.data();
-#if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
-            logical_device_info.enabledLayerCount =
-                static_cast<uint32_t>(m_enabled_layers_names.size());
-            logical_device_info.ppEnabledLayerNames =
-                m_enabled_layers_names.data();
-#endif
-
-            // Create the logical device.
-            if(vkCreateDevice(physical_device, &logical_device_info,
-            nullptr, &logical_device) != VK_SUCCESS) {
-                VK_TUT_LOG_ERROR(
-                    "Failed to create a logical device."
-                );
-            }
-
-            // Retrieve the present queue handle.
-            VkQueue present_queue;
-            vkGetDeviceQueue(logical_device,
-                ::std::get<1>(indices.get_present_family_index()),
-                0, &present_queue);
-            // Map the logical device to the present queue.
-            m_present_queues.emplace(&logical_device, present_queue);
-        }
-
-        VK_TUT_LOG_DEBUG("Successfully created logical devices.");
+        VK_TUT_LOG_DEBUG("Successfully created a logical device.");
     }
 
     void Application::create_swapchain() {
@@ -294,15 +290,10 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("Destroyed swapchain.");
     }
 
-    void Application::destroy_logical_devices() {
-        // Loop through the device map and destroy the
-        // logical device for each physical device.
-        for (auto& [physical_device, logical_device]:
-        m_device_map) {
-            vkDestroyDevice(logical_device, nullptr);
-        }
+    void Application::destroy_logical_device() {
+        vkDestroyDevice(m_logical_device, nullptr);
 
-        VK_TUT_LOG_DEBUG("Destroyed logical devices.");
+        VK_TUT_LOG_DEBUG("Destroyed logical device.");
     }
 
     void Application::destroy_surface() {

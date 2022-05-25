@@ -13,15 +13,12 @@
 #endif
 #endif
 
-#include "vk_tut/QueueFamilyIndices.h"
-
 // C++ only region.
 #if defined(__cplusplus)
 
-#include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
 #include <vector>
-#include <unordered_map>
 
 namespace vk::tut {
     // Vulkan application data encapsulation.
@@ -67,24 +64,26 @@ namespace vk::tut {
 #endif
         // The abstract surface to present render graphics to.
         VkSurfaceKHR m_surface;
-        // The map between selected physical devices
-        // to their logical device handles.
-        ::std::unordered_map<VkPhysicalDevice, VkDevice> m_device_map;
-        // The presentation queues mapped to
-        // their corresponding logical device pointers.
-        ::std::unordered_map<VkDevice*, VkQueue> m_present_queues;
+        // The handle to the physical GPU.
+        VkPhysicalDevice m_physical_device;
+        // The logical device used to interface with the physical device.
+        VkDevice m_logical_device;
+        // The presentation queue
+        VkQueue m_present_queue;
         // List of enabled device extensions.
         const ::std::vector<const char*> m_enabled_extensions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
+        // The swapchain.
+        VkSwapchainKHR m_swapchain;
 
         // < -------------------- Vulkan initializations ------------------- >
 
         void create_and_show_window();
         void init_vulkan_instance();
         void create_surface();
-        void select_physical_devices();
-        void create_logical_devices();
+        void select_physical_device();
+        void create_logical_device();
         void create_swapchain();
 
         // < ------------------ END Vulkan initializations ----------------- >
@@ -92,7 +91,7 @@ namespace vk::tut {
         // < ------------------- Vulkan cleanup functions ------------------ >
 
         void destroy_swapchain();
-        void destroy_logical_devices();
+        void destroy_logical_device();
         void destroy_surface();
         void destroy_vulkan_instance();
         void destroy_window();
