@@ -74,8 +74,12 @@ namespace vk::tut {
         const ::std::vector<const char*> m_enabled_extensions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
-        // The swapchain.
+        // The swapchain handle.
         VkSwapchainKHR m_swapchain;
+        VkFormat m_swapchain_image_format;
+        VkExtent2D m_swapchain_extent;
+        // The handle to the swapchain images.
+        ::std::vector<VkImage> m_swapchain_images;
 
         // < -------------------- Vulkan initializations ------------------- >
 
@@ -116,6 +120,17 @@ namespace vk::tut {
     bool check_device_extension_support(
         const VkPhysicalDevice& physical_device,
         const ::std::vector<const char*>& required_extensions
+    );
+    VkSurfaceFormatKHR choose_surface_format(
+        const ::std::vector<VkSurfaceFormatKHR>& formats
+    );
+    VkPresentModeKHR choose_present_mode(
+        const ::std::vector<VkPresentModeKHR>& present_modes
+    );
+    // This dictates the resoultion of the swapchain images.
+    VkExtent2D choose_swap_extent(
+        const VkSurfaceCapabilitiesKHR& capabilities,
+        GLFWwindow* ptr_window
     );
 
     // < --------------------- END Helper functions -------------------- >

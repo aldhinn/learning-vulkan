@@ -7,6 +7,9 @@
 #include <tuple>
 #include <set>
 #include <string>
+#include <stdint.h>
+#include <limits>
+#include <algorithm>
 
 namespace vk::tut {
     // Default constructor.
@@ -275,9 +278,95 @@ namespace vk::tut {
     }
 
     void Application::create_swapchain() {
-        // TODO : Implement.
+        SwapChainSupportDetails swapchan_support = query_swapchain_support(
+            m_physical_device, m_surface
+        );
+
+        VkSurfaceFormatKHR surface_format = choose_surface_format(
+            swapchan_support.get_formats()  
+        );
+        m_swapchain_image_format = surface_format.format;
+        VkPresentModeKHR present_mode = choose_present_mode(
+            swapchan_support.get_present_modes()
+        );
+        m_swapchain_extent = choose_swap_extent(
+            swapchan_support.get_capabilities(), m_ptr_window
+        );
+
+        uint32_t image_count = swapchan_support
+            .get_capabilities().minImageCount + 1;
+        // Reference for ::std::clamp
+        // https://en.cppreference.com/w/cpp/algorithm/clamp
+        // Basically keeping the values
+        // of width and height within valid range.
+        image_count = ::std::clamp(image_count,
+            swapchan_support.get_capabilities().minImageCount,
+            swapchan_support.get_capabilities().maxImageCount > 0 ?
+                swapchan_support.get_capabilities().maxImageCount :
+                ::std::numeric_limits<uint32_t>::max()
+        );
+
+        QueueFamilyIndices indices = find_family_indices(
+            m_physical_device, m_surface
+        );
+
+        // If an invalid physical device somehow got through.
+        if (!indices.is_complete()) {
+            VK_TUT_LOG_ERROR(
+                "Invalid physical device for swapchain creation."
+            );
+        }
+
+        uint32_t queue_family_indices [] = {
+            ::std::get<1>(indices.get_graphics_family_index()),
+            ::std::get<1>(indices.get_present_family_index())
+        };
+
+        VkSwapchainCreateInfoKHR swapchain_info{};
+        swapchain_info.sType = VkStructureType
+            ::VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        swapchain_info.surface = m_surface;
+        swapchain_info.minImageCount = image_count;
+        swapchain_info.imageFormat = m_swapchain_image_format;
+        swapchain_info.presentMode = present_mode;
+        swapchain_info.clipped = VK_TRUE; // Simply clip the obscured pixels.
+        swapchain_info.imageExtent = m_swapchain_extent;
+        swapchain_info.imageArrayLayers = 1;
+        swapchain_info.imageUsage = VkImageUsageFlagBits
+            ::VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        swapchain_info.preTransform = swapchan_support
+            .get_capabilities().currentTransform;
+        // Used for blending with other windows in the
+        // windows system. Perhaps, to create some tranclucency
+        // effect on the window. We'll set it to opaque for now.
+        swapchain_info.compositeAlpha = VkCompositeAlphaFlagBitsKHR
+            ::VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        if (queue_family_indices[0] != queue_family_indices[1]) {
+            swapchain_info.imageSharingMode = VkSharingMode
+                ::VK_SHARING_MODE_CONCURRENT;   
+            swapchain_info.queueFamilyIndexCount = 2;
+            swapchain_info.pQueueFamilyIndices = queue_family_indices;
+        }
+        else {
+            swapchain_info.imageSharingMode = VkSharingMode
+                ::VK_SHARING_MODE_EXCLUSIVE;
+        }
+        
+        if (vkCreateSwapchainKHR(m_logical_device, &swapchain_info,
+        nullptr, &m_swapchain) != VK_SUCCESS) {
+            VK_TUT_LOG_ERROR(
+                "Failed to create a swapchain."
+            );
+        }
 
         VK_TUT_LOG_DEBUG("Successfully created swapchain.");
+
+        // Retrieve swapchain images.
+        vkGetSwapchainImagesKHR(m_logical_device, m_swapchain,
+            &image_count, nullptr);
+        m_swapchain_images.reserve(image_count);
+        vkGetSwapchainImagesKHR(m_logical_device, m_swapchain,
+            &image_count, m_swapchain_images.data());
     }
 
     // < ------------------ END Vulkan initializations ----------------- >
@@ -285,7 +374,7 @@ namespace vk::tut {
     // < ------------------- Vulkan cleanup functions ------------------ >
 
     void Application::destroy_swapchain() {
-        // TODO : Implement.
+        vkDestroySwapchainKHR(m_logical_device, m_swapchain, nullptr);
 
         VK_TUT_LOG_DEBUG("Destroyed swapchain.");
     }
@@ -349,6 +438,65 @@ namespace vk::tut {
         return required_extensions_set.empty();
     }
 
+    VkSurfaceFormatKHR choose_surface_format(
+        const ::std::vector<VkSurfaceFormatKHR>& formats
+    ) {
+        for (const VkSurfaceFormatKHR format : formats) {
+            if (format.format == VkFormat::VK_FORMAT_B8G8R8_SRGB &&
+            format.colorSpace == VkColorSpaceKHR
+            ::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
+            ) return format;
+        }
+
+        // Just settle on the first one if the formats aren't perfect.
+        return formats[0];
+    }
+
+    VkPresentModeKHR choose_present_mode(
+        const ::std::vector<VkPresentModeKHR>& present_modes
+    ) {
+        // If VK_PRESENT_MODE_MAILBOX_KHR is available, use that instead.
+        for (const VkPresentModeKHR& present_mode : present_modes) {
+            if (present_mode == VkPresentModeKHR::VK_PRESENT_MODE_MAILBOX_KHR)
+                return present_mode;
+        }
+
+        return VkPresentModeKHR::VK_PRESENT_MODE_FIFO_KHR;
+    }
+
+    // This dictates the resoultion of the swapchain images.
+    VkExtent2D choose_swap_extent(
+        const VkSurfaceCapabilitiesKHR& capabilities,
+        GLFWwindow* ptr_window
+    ) {
+        if (capabilities.currentExtent.width !=
+        ::std::numeric_limits<uint32_t>::max())
+            return capabilities.currentExtent;
+        
+        int width, height;
+        glfwGetFramebufferSize(ptr_window, &width, &height);
+
+        VkExtent2D actual_extent{
+            static_cast<uint32_t>(width),
+            static_cast<uint32_t>(height)
+        };
+
+        // Reference for ::std::clamp
+        // https://en.cppreference.com/w/cpp/algorithm/clamp
+        // Basically keeping the values
+        // of width and height within valid range.
+        actual_extent.width = ::std::clamp(actual_extent.width,
+            capabilities.minImageExtent.width,
+            capabilities.maxImageExtent.width
+        );
+        actual_extent.height = ::std::clamp(actual_extent.height,
+            capabilities.minImageExtent.height,
+            capabilities.maxImageExtent.height
+        );
+
+        return actual_extent;
+    }
+
     // < --------------------- END Helper functions -------------------- >
 
     // < --------------- Validation layer initializations -------------- >
@@ -367,7 +515,8 @@ namespace vk::tut {
         vkEnumerateInstanceLayerProperties(&available_layers_properties_count,
             available_layers_properties.data());
         
-        for (const VkLayerProperties& layer_prop : available_layers_properties) {
+        for (const VkLayerProperties& layer_prop :
+        available_layers_properties) {
             // If VK_LAYER_KHRONOS_validation layer is available,
             // then validation layer is supported.
             if (strcmp("VK_LAYER_KHRONOS_validation",
@@ -458,10 +607,11 @@ namespace vk::tut {
         ref_debug_messenger_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
         ref_debug_messenger_info.messageSeverity =
-            VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+            VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
         ref_debug_messenger_info.messageType =
+            VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         ref_debug_messenger_info.pfnUserCallback = debug_callback;
