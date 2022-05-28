@@ -78,8 +78,10 @@ namespace vk::tut {
         VkSwapchainKHR m_swapchain;
         VkFormat m_swapchain_image_format;
         VkExtent2D m_swapchain_extent;
-        // The handle to the swapchain images.
+        // The handles to the swapchain images.
         ::std::vector<VkImage> m_swapchain_images;
+        // The handles to the swapchain image views.
+        ::std::vector<VkImageView> m_swapchain_image_views;
 
         // < -------------------- Vulkan initializations ------------------- >
 
@@ -89,6 +91,7 @@ namespace vk::tut {
         void select_physical_device();
         void create_logical_device();
         void create_swapchain();
+        void create_swapchain_imageviews();
 
         // < ------------------ END Vulkan initializations ----------------- >
 
@@ -99,6 +102,7 @@ namespace vk::tut {
         void destroy_surface();
         void destroy_vulkan_instance();
         void destroy_window();
+        void destroy_image_views();
 
         // < ----------------- END Vulkan cleanup functions ---------------- >
 

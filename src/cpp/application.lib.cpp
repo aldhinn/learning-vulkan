@@ -25,6 +25,7 @@ namespace vk::tut {
         select_physical_device();
         create_logical_device();
         create_swapchain();
+        create_swapchain_imageviews();
 
         VK_TUT_LOG_DEBUG("...FINISHED Initializing application data...");
     }
@@ -33,6 +34,7 @@ namespace vk::tut {
     Application::~Application() {
         VK_TUT_LOG_DEBUG("...Cleaning up application data...");
 
+        destroy_image_views();
         destroy_swapchain();
         destroy_logical_device();
         destroy_surface();
@@ -369,9 +371,61 @@ namespace vk::tut {
             &image_count, m_swapchain_images.data());
     }
 
+    void Application::create_swapchain_imageviews() {
+        m_swapchain_image_views.reserve(m_swapchain_images.size());
+
+        // Loop through the swapchain images.
+        for (VkImage& image : m_swapchain_images) {
+            VkImageViewCreateInfo image_view_info{};
+            image_view_info.sType = VkStructureType
+                ::VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            image_view_info.image = image;
+            image_view_info.viewType = VkImageViewType
+                ::VK_IMAGE_VIEW_TYPE_2D;
+            image_view_info.components.r = VkComponentSwizzle
+                ::VK_COMPONENT_SWIZZLE_IDENTITY;
+            image_view_info.components.g = VkComponentSwizzle
+                ::VK_COMPONENT_SWIZZLE_IDENTITY;
+            image_view_info.components.b = VkComponentSwizzle
+                ::VK_COMPONENT_SWIZZLE_IDENTITY;
+            image_view_info.components.a = VkComponentSwizzle
+                ::VK_COMPONENT_SWIZZLE_IDENTITY;
+            image_view_info.subresourceRange.aspectMask =
+                VkImageAspectFlagBits::VK_IMAGE_ASPECT_COLOR_BIT;
+            image_view_info.subresourceRange.baseMipLevel = 0;
+            image_view_info.subresourceRange.levelCount = 1;
+            image_view_info.subresourceRange.baseArrayLayer = 0;
+            image_view_info.subresourceRange.layerCount = 1;
+
+            // The image view to be created.
+            VkImageView image_view;
+
+            if (vkCreateImageView(m_logical_device, &image_view_info,
+            nullptr, &image_view) != VK_SUCCESS) {
+                VK_TUT_LOG_ERROR(
+                    "Failed to create a swapchain image view."
+                );
+            }
+
+            m_swapchain_image_views.emplace_back(::std::move(image_view));
+        }
+
+        VK_TUT_LOG_DEBUG("Successfully created swapchain image views.");
+    }
+
     // < ------------------ END Vulkan initializations ----------------- >
 
     // < ------------------- Vulkan cleanup functions ------------------ >
+
+    void Application::destroy_image_views() {
+        for (const VkImageView& image_view : m_swapchain_image_views) {
+            vkDestroyImageView(m_logical_device, image_view, nullptr);
+        }
+
+        m_swapchain_image_views.clear();
+
+        VK_TUT_LOG_DEBUG("Destroyed swapchain image views.");
+    }
 
     void Application::destroy_swapchain() {
         vkDestroySwapchainKHR(m_logical_device, m_swapchain, nullptr);
