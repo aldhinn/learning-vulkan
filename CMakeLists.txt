@@ -38,6 +38,31 @@ endif()
 
 # < --------------------------- END Dependencies -------------------------- >
 
+# < -------------------------- Compiling Shaders -------------------------- >
+
+# This program comes with the Vulkan SDK
+find_program(GLSLC_EXE glslc REQUIRED)
+# Ensure output directory's existence.
+file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/shaders/)
+# Retrieve shader source files.
+file(GLOB shader_source_filepaths
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/glsl/*.vert
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/glsl/*.frag
+)
+# Loop through each source file and compile to a shader binary format.
+foreach(source_filepath ${shader_source_filepaths})
+    # Retrieve the base filename of the source file.
+    get_filename_component(source_filename ${source_filepath} NAME)
+    # Execute shader compilation.
+    exec_program(${GLSLC_EXE} ARGS
+        ${source_filepath} -o
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders/${source_filename}.spv
+    )
+endforeach()
+
+
+# < ------------------------ END Compiling Shaders ------------------------ >
+
 # < ---------------- learning_vulkan_lib target definition ---------------- >
 
 file(GLOB learning_vulkan_lib_src
