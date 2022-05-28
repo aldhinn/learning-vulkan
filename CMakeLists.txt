@@ -91,5 +91,9 @@ target_link_libraries(
     GTest::gtest_main
     learning_vulkan_lib
 )
+target_compile_definitions(
+    learning_vulkan_unittests PRIVATE
+    _VK_TUT_PROJECT_DIR_="${CMAKE_CURRENT_SOURCE_DIR}"
+)
 
 # < --------------------------- END Unit testing -------------------------- >
