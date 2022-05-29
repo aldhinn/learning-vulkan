@@ -94,6 +94,10 @@ namespace vk::tut {
         VkPipeline m_graphics_pipeline;
         // The handles to the frame buffers.
         ::std::vector<VkFramebuffer> m_swapchain_frame_buffers;
+        // The command pool handle.
+        VkCommandPool m_command_pool;
+        // The command buffer handle.
+        VkCommandBuffer m_command_buffer;
 
         // < -------------------- Vulkan initializations ------------------- >
 
@@ -107,11 +111,14 @@ namespace vk::tut {
         void create_render_pass();
         void create_graphics_pipeline();
         void create_swapchain_frame_buffers();
+        void create_command_pool();
+        void create_command_buffer();
 
         // < ------------------ END Vulkan initializations ----------------- >
 
         // < ------------------- Vulkan cleanup functions ------------------ >
 
+        void destroy_command_pool();
         void destroy_swapchain_frame_buffers();
         void destroy_graphics_pipeline();
         void destroy_render_pass();
