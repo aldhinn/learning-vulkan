@@ -83,6 +83,11 @@ target_link_libraries(
     glfw
     glm::glm
 )
+target_compile_definitions(
+    learning_vulkan_lib PUBLIC
+    _VK_TUT_VERTEX_SHADER_FILEPATH_="${CMAKE_CURRENT_BINARY_DIR}/shaders/basic_shader.vert.spv"
+    _VK_TUT_FRAGMENT_SHADER_FILEPATH_="${CMAKE_CURRENT_BINARY_DIR}/shaders/basic_shader.frag.spv"
+)
 
 # < -------------- END learning_vulkan_lib target definition -------------- >
 

@@ -82,6 +82,16 @@ namespace vk::tut {
         ::std::vector<VkImage> m_swapchain_images;
         // The handles to the swapchain image views.
         ::std::vector<VkImageView> m_swapchain_image_views;
+        // Vertex shader module.
+        VkShaderModule m_vertex_shader_module;
+        // Fragment shader module.
+        VkShaderModule m_fragment_shader_module;
+        // The render pass handle.
+        VkRenderPass m_render_pass;
+        // The graphics pipeline layout.
+        VkPipelineLayout m_graphics_pipeline_layout;
+        // The handle to the graphics pipeline.
+        VkPipeline m_graphics_pipeline;
 
         // < -------------------- Vulkan initializations ------------------- >
 
@@ -92,11 +102,15 @@ namespace vk::tut {
         void create_logical_device();
         void create_swapchain();
         void create_swapchain_image_views();
+        void create_render_pass();
+        void create_graphics_pipeline();
 
         // < ------------------ END Vulkan initializations ----------------- >
 
         // < ------------------- Vulkan cleanup functions ------------------ >
 
+        void destroy_graphics_pipeline();
+        void destroy_render_pass();
         void destroy_swapchain_image_views();
         void destroy_swapchain();
         void destroy_logical_device();
