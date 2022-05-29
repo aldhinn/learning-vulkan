@@ -60,7 +60,6 @@ foreach(source_filepath ${shader_source_filepaths})
     )
 endforeach()
 
-
 # < ------------------------ END Compiling Shaders ------------------------ >
 
 # < ---------------- learning_vulkan_lib target definition ---------------- >
@@ -109,6 +108,8 @@ target_link_libraries(
 
 # < ----------------------------- Unit testing ---------------------------- >
 
+enable_testing()
+
 file(GLOB learning_vulkan_unittests_src
     ${CMAKE_CURRENT_SOURCE_DIR}/tests/cpp/*.UT.cpp
 )
@@ -125,5 +126,8 @@ target_compile_definitions(
     learning_vulkan_unittests PRIVATE
     _VK_TUT_PROJECT_DIR_="${CMAKE_CURRENT_SOURCE_DIR}"
 )
+
+# Add to CTest.
+add_test(NAME "Unit Testing" COMMAND learning_vulkan_unittests)
 
 # < --------------------------- END Unit testing -------------------------- >
