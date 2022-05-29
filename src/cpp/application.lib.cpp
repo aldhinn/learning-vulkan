@@ -29,6 +29,7 @@ namespace vk::tut {
         create_swapchain_image_views();
         create_render_pass();
         create_graphics_pipeline();
+        create_swapchain_frame_buffers();
 
         VK_TUT_LOG_DEBUG("...FINISHED Initializing application data...");
     }
@@ -37,6 +38,7 @@ namespace vk::tut {
     Application::~Application() {
         VK_TUT_LOG_DEBUG("...Cleaning up application data...");
 
+        destroy_swapchain_frame_buffers();
         destroy_graphics_pipeline();
         destroy_render_pass();
         destroy_swapchain_image_views();
@@ -630,9 +632,56 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("Successfully created graphics pipeline.");
     }
 
+    void Application::create_swapchain_frame_buffers() {
+        // Match the size of the image view since each
+        // framebuffer matches with an image view.
+        m_swapchain_frame_buffers.reserve(m_swapchain_image_views.size());
+
+        // Loop through each image view.
+        for (const VkImageView& image_view : m_swapchain_image_views) {
+            // The image view the framebuffer is attaching to.
+            VkImageView attachments[] = {image_view};
+
+            // The information about the framebuffer to be created.
+            VkFramebufferCreateInfo frame_buffer_info{};
+            frame_buffer_info.sType = VkStructureType
+                ::VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            frame_buffer_info.renderPass = m_render_pass;
+            frame_buffer_info.width = m_swapchain_extent.width;
+            frame_buffer_info.height = m_swapchain_extent.height;
+            frame_buffer_info.layers = 1;
+            frame_buffer_info.attachmentCount = 1;
+            frame_buffer_info.pAttachments = attachments;
+
+            // The framebuffer to be created.
+            VkFramebuffer frame_buffer;
+
+            // Create the framebuffer.
+            if (vkCreateFramebuffer(m_logical_device,
+            &frame_buffer_info, nullptr, &frame_buffer) != VK_SUCCESS) {
+                VK_TUT_LOG_ERROR(
+                    "Failed to create framebuffer."
+                );
+            }
+
+            m_swapchain_frame_buffers.emplace_back(::std::move(frame_buffer));
+        }
+
+        VK_TUT_LOG_DEBUG("Successfully created swapchain framebuffers.");
+    }
+
     // < ------------------ END Vulkan initializations ----------------- >
 
     // < ------------------- Vulkan cleanup functions ------------------ >
+
+    void Application::destroy_swapchain_frame_buffers() {
+        // Loop through each framebuffer and destroy them.
+        for (const VkFramebuffer& frame_buffer : m_swapchain_frame_buffers) {
+            vkDestroyFramebuffer(m_logical_device, frame_buffer, nullptr);
+        }
+        
+        VK_TUT_LOG_DEBUG("Destroyed swapchain framebuffers.");
+    }
 
     void Application::destroy_graphics_pipeline() {
         // Destroy the graphics pipeline itself.

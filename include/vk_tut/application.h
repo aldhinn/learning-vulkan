@@ -92,6 +92,8 @@ namespace vk::tut {
         VkPipelineLayout m_graphics_pipeline_layout;
         // The handle to the graphics pipeline.
         VkPipeline m_graphics_pipeline;
+        // The handles to the frame buffers.
+        ::std::vector<VkFramebuffer> m_swapchain_frame_buffers;
 
         // < -------------------- Vulkan initializations ------------------- >
 
@@ -104,11 +106,13 @@ namespace vk::tut {
         void create_swapchain_image_views();
         void create_render_pass();
         void create_graphics_pipeline();
+        void create_swapchain_frame_buffers();
 
         // < ------------------ END Vulkan initializations ----------------- >
 
         // < ------------------- Vulkan cleanup functions ------------------ >
 
+        void destroy_swapchain_frame_buffers();
         void destroy_graphics_pipeline();
         void destroy_render_pass();
         void destroy_swapchain_image_views();
