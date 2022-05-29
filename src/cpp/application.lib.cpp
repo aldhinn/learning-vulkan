@@ -25,7 +25,7 @@ namespace vk::tut {
         select_physical_device();
         create_logical_device();
         create_swapchain();
-        create_swapchain_imageviews();
+        create_swapchain_image_views();
 
         VK_TUT_LOG_DEBUG("...FINISHED Initializing application data...");
     }
@@ -34,7 +34,7 @@ namespace vk::tut {
     Application::~Application() {
         VK_TUT_LOG_DEBUG("...Cleaning up application data...");
 
-        destroy_image_views();
+        destroy_swapchain_image_views();
         destroy_swapchain();
         destroy_logical_device();
         destroy_surface();
@@ -371,7 +371,7 @@ namespace vk::tut {
             &image_count, m_swapchain_images.data());
     }
 
-    void Application::create_swapchain_imageviews() {
+    void Application::create_swapchain_image_views() {
         m_swapchain_image_views.reserve(m_swapchain_images.size());
 
         // Loop through the swapchain images.
@@ -417,7 +417,7 @@ namespace vk::tut {
 
     // < ------------------- Vulkan cleanup functions ------------------ >
 
-    void Application::destroy_image_views() {
+    void Application::destroy_swapchain_image_views() {
         for (const VkImageView& image_view : m_swapchain_image_views) {
             vkDestroyImageView(m_logical_device, image_view, nullptr);
         }

@@ -91,18 +91,18 @@ namespace vk::tut {
         void select_physical_device();
         void create_logical_device();
         void create_swapchain();
-        void create_swapchain_imageviews();
+        void create_swapchain_image_views();
 
         // < ------------------ END Vulkan initializations ----------------- >
 
         // < ------------------- Vulkan cleanup functions ------------------ >
 
+        void destroy_swapchain_image_views();
         void destroy_swapchain();
         void destroy_logical_device();
         void destroy_surface();
         void destroy_vulkan_instance();
         void destroy_window();
-        void destroy_image_views();
 
         // < ----------------- END Vulkan cleanup functions ---------------- >
 

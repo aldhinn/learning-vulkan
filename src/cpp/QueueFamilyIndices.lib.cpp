@@ -94,14 +94,14 @@ namespace vk::tut {
             // If the desired indices are populated, then there would
             // be no reason to loop through for more.
             if (result.is_complete()) {
-                VK_TUT_LOG_DEBUG("Complete QueueFamilyIndices.");
+                VK_TUT_LOG_DEBUG("A Query for a Complete QueueFamilyIndices.");
                 return result;
             }
 
             current_index++;
         }
 
-        VK_TUT_LOG_DEBUG("Incomplete QueueFamilyIndices.");
+        VK_TUT_LOG_DEBUG("A Query for an Incomplete QueueFamilyIndices.");
         return result;
     }
 }
