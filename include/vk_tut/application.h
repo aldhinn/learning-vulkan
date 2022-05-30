@@ -100,17 +100,19 @@ namespace vk::tut {
         ::std::vector<VkFramebuffer> m_swapchain_frame_buffers;
         // The command pool handle.
         VkCommandPool m_command_pool;
-        // The command buffer handle.
-        VkCommandBuffer m_command_buffer;
-        // A GPU sync object that signals a swapchain
+        // The index of the current frame being rendered.
+        uint32_t m_current_frame_index = 0;
+        // The command buffer handles.
+        ::std::vector<VkCommandBuffer> m_command_buffers;
+        // GPU sync objects that signals a swapchain
         // image availability in the GPU.
-        VkSemaphore m_image_available_semaphore;
-        // A GPU Sync object that signals the
+        ::std::vector<VkSemaphore> m_image_available_semaphores;
+        // GPU Sync objects that signals the
         // completion of rendering in the GPU.
-        VkSemaphore m_render_finished_semaphore;
-        // A CPU sync object that tells the CPU that the
+        ::std::vector<VkSemaphore> m_render_finished_semaphores;
+        // CPU sync objects that tells the CPU that the
         // previous frame has finished rendering in the GPU.
-        VkFence m_in_flight_fence;
+        ::std::vector<VkFence> m_in_flight_fences;
 
         // < -------------------- Vulkan initializations ------------------- >
 
@@ -125,7 +127,7 @@ namespace vk::tut {
         void create_graphics_pipeline();
         void create_swapchain_frame_buffers();
         void create_command_pool();
-        void create_command_buffer();
+        void create_command_buffers();
         void create_sync_objects();
 
         // < ------------------ END Vulkan initializations ----------------- >

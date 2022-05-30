@@ -22,7 +22,7 @@ namespace vk::tut {
         create_graphics_pipeline();
         create_swapchain_frame_buffers();
         create_command_pool();
-        create_command_buffer();
+        create_command_buffers();
         create_sync_objects();
 
         VK_TUT_LOG_DEBUG("...FINISHED Initializing application data...");
@@ -68,20 +68,25 @@ namespace vk::tut {
 
     void Application::draw_frame() {
         // Wait until the previous frame has finished rendering in the GPU.
-        vkWaitForFences(m_logical_device, 1, &m_in_flight_fence,
-            VK_TRUE, ::std::numeric_limits<uint64_t>::max());
+        vkWaitForFences(m_logical_device, 1, &
+            m_in_flight_fences[m_current_frame_index], VK_TRUE,
+            ::std::numeric_limits<uint64_t>::max()
+        );
         // Reset the fence for drawing in the GPU.
-        vkResetFences(m_logical_device, 1, &m_in_flight_fence);
+        vkResetFences(m_logical_device, 1,
+            &m_in_flight_fences[m_current_frame_index]
+        );
 
         // Acquire the next available image from the swapchain.
         uint32_t image_index = 0;
         vkAcquireNextImageKHR(m_logical_device, m_swapchain,
             ::std::numeric_limits<uint64_t>::max(),
-            m_image_available_semaphore, VK_NULL_HANDLE, &image_index
+            m_image_available_semaphores[m_current_frame_index],
+            VK_NULL_HANDLE, &image_index
         );
 
         // Reset the command buffer.
-        vkResetCommandBuffer(m_command_buffer, 0);
+        vkResetCommandBuffer(m_command_buffers[m_current_frame_index], 0);
 
         // Record the command buffer with the command that we want.
         // In our case, to draw our triangle.
@@ -98,17 +103,19 @@ namespace vk::tut {
         VkSubmitInfo submit_info{};
         submit_info.sType = VkStructureType::VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submit_info.commandBufferCount = 1;
-        submit_info.pCommandBuffers = &m_command_buffer;
+        submit_info.pCommandBuffers = &m_command_buffers[m_current_frame_index];
         submit_info.waitSemaphoreCount = 1;
-        submit_info.pWaitSemaphores = &m_image_available_semaphore;
+        submit_info.pWaitSemaphores =
+            &m_image_available_semaphores[m_current_frame_index];
         submit_info.pWaitDstStageMask = wait_stages;
         submit_info.signalSemaphoreCount = 1;
-        submit_info.pSignalSemaphores = &m_render_finished_semaphore;
+        submit_info.pSignalSemaphores =
+            &m_render_finished_semaphores[m_current_frame_index];
 
         // Submit to the graphics queue.
         // Signals the m_in_flight_fence when graphics rendering is done.
-        if (vkQueueSubmit(m_graphics_queue, 1, &submit_info, m_in_flight_fence)
-        != VK_SUCCESS) {
+        if (vkQueueSubmit(m_graphics_queue, 1, &submit_info,
+        m_in_flight_fences[m_current_frame_index]) != VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to submit draw command buffer.");
         }
 
@@ -117,7 +124,8 @@ namespace vk::tut {
         present_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         present_info.waitSemaphoreCount = 1;
-        present_info.pWaitSemaphores = &m_render_finished_semaphore;
+        present_info.pWaitSemaphores =
+            &m_render_finished_semaphores[m_current_frame_index];
         present_info.swapchainCount = 1;
         present_info.pSwapchains = &m_swapchain;
         present_info.pImageIndices = &image_index;
@@ -128,5 +136,11 @@ namespace vk::tut {
         != VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to present to the swapchain.");
         }
+
+        // Update the current frame index.
+        // Will loop back to zero if it exceeded the
+        // number of valid framebuffers.
+        m_current_frame_index = (m_current_frame_index + 1) %
+            m_swapchain_frame_buffers.size();
     }
 }

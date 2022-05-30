@@ -35,24 +35,34 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("Successfully created command pool.");
     }
 
-    void Application::create_command_buffer() {
-        VkCommandBufferAllocateInfo command_buffer_info{};
-        command_buffer_info.sType = VkStructureType
-            ::VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        command_buffer_info.commandPool = m_command_pool;
-        command_buffer_info.level = VkCommandBufferLevel
-            ::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        command_buffer_info.commandBufferCount = 1;
+    void Application::create_command_buffers() {
+        // Create a command buffer per frame buffer.
+        m_command_buffers.reserve(m_swapchain_frame_buffers.size());
 
-        // Allocate command buffer.
-        if (vkAllocateCommandBuffers(m_logical_device,
-        &command_buffer_info, &m_command_buffer) != VK_SUCCESS) {
-            VK_TUT_LOG_ERROR(
-                "Failed to allocate command buffer."
-            );
+        for (uint32_t i = 0; i < m_command_buffers.capacity(); i++) {
+            VkCommandBufferAllocateInfo command_buffer_info{};
+            command_buffer_info.sType = VkStructureType
+                ::VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+            command_buffer_info.commandPool = m_command_pool;
+            command_buffer_info.level = VkCommandBufferLevel
+                ::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+            command_buffer_info.commandBufferCount = 1;
+
+            // The command buffer handle to be allocated.
+            VkCommandBuffer command_buffer;
+
+            // Allocate command buffer.
+            if (vkAllocateCommandBuffers(m_logical_device,
+            &command_buffer_info, &command_buffer) != VK_SUCCESS) {
+                VK_TUT_LOG_ERROR(
+                    "Failed to allocate command buffer."
+                );
+            }
+
+            m_command_buffers.emplace_back(::std::move(command_buffer));
         }
 
-        VK_TUT_LOG_DEBUG("Successfully allocated command buffer.");
+        VK_TUT_LOG_DEBUG("Successfully allocated command buffers.");
     }
 
     void Application::destroy_command_pool() {
@@ -73,7 +83,7 @@ namespace vk::tut {
         // Optional. Only relevant if we're using secondary command buffers.
         command_buffer_begin_info.pInheritanceInfo = nullptr;
         
-        if (vkBeginCommandBuffer(m_command_buffer,
+        if (vkBeginCommandBuffer(m_command_buffers[m_current_frame_index],
         &command_buffer_begin_info) != VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to begin recording command buffer."
@@ -96,24 +106,28 @@ namespace vk::tut {
         render_pass_begin_info.pClearValues = clear_colour;
 
         // Begin the render pass.
-        vkCmdBeginRenderPass(m_command_buffer, &render_pass_begin_info,
-            VkSubpassContents::VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(
+            m_command_buffers[m_current_frame_index],
+            &render_pass_begin_info,
+            VkSubpassContents::VK_SUBPASS_CONTENTS_INLINE
+        );
         
         // Bind the command buffer to the graphics pipeline.
         vkCmdBindPipeline(
-            m_command_buffer,
+            m_command_buffers[m_current_frame_index],
             VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS,
             m_graphics_pipeline
         );
 
         // Draw the three vertices specified in our vertex shader.
-        vkCmdDraw(m_command_buffer, 3, 1, 0, 0);
+        vkCmdDraw(m_command_buffers[m_current_frame_index], 3, 1, 0, 0);
 
         // End the render pass.
-        vkCmdEndRenderPass(m_command_buffer);
+        vkCmdEndRenderPass(m_command_buffers[m_current_frame_index]);
 
         // End command buffer recording.
-        if (vkEndCommandBuffer(m_command_buffer) != VK_SUCCESS) {
+        if (vkEndCommandBuffer(m_command_buffers[m_current_frame_index])
+        != VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to record command buffer.");
         }
     }

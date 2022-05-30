@@ -188,6 +188,7 @@ namespace vk::tut {
 
         // Clear the list.
         m_swapchain_frame_buffers.clear();
+        m_swapchain_frame_buffers.resize(0);
         
         VK_TUT_LOG_DEBUG("Destroyed swapchain framebuffers.");
     }
@@ -198,6 +199,7 @@ namespace vk::tut {
         }
 
         m_swapchain_image_views.clear();
+        m_swapchain_image_views.resize(0);
 
         VK_TUT_LOG_DEBUG("Destroyed swapchain image views.");
     }
