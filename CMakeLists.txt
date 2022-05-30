@@ -57,6 +57,8 @@ foreach(source_filepath ${shader_source_filepaths})
     exec_program(${GLSLC_EXE} ARGS
         ${source_filepath} -o
         ${CMAKE_CURRENT_BINARY_DIR}/shaders/${source_filename}.spv
+        -O
+        --target-env=vulkan1.2
     )
 endforeach()
 

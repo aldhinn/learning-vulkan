@@ -19,7 +19,7 @@ namespace vk::tut {
         vulkan_application_info.pEngineName = "No Engine";
         vulkan_application_info.applicationVersion = VK_MAKE_VERSION(0, 0, 1);
         vulkan_application_info.engineVersion = VK_MAKE_VERSION(0, 0, 1);
-        vulkan_application_info.apiVersion = VK_API_VERSION_1_3;
+        vulkan_application_info.apiVersion = VK_API_VERSION_1_2;
 
         // Retrieve the number of glfw extensions.
         uint32_t glfw_extensions_count = 0;
