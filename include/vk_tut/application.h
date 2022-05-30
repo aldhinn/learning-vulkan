@@ -70,13 +70,17 @@ namespace vk::tut {
         VkDevice m_logical_device;
         // The presentation queue
         VkQueue m_present_queue;
+        // The graphics queue handle.
+        VkQueue m_graphics_queue;
         // List of enabled device extensions.
         const ::std::vector<const char*> m_enabled_extensions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
         // The swapchain handle.
         VkSwapchainKHR m_swapchain;
+        // The format of the images in the swapchain.
         VkFormat m_swapchain_image_format;
+        // The extent description of the swapchain.
         VkExtent2D m_swapchain_extent;
         // The handles to the swapchain images.
         ::std::vector<VkImage> m_swapchain_images;
@@ -98,6 +102,15 @@ namespace vk::tut {
         VkCommandPool m_command_pool;
         // The command buffer handle.
         VkCommandBuffer m_command_buffer;
+        // A GPU sync object that signals a swapchain
+        // image availability in the GPU.
+        VkSemaphore m_image_available_semaphore;
+        // A GPU Sync object that signals the
+        // completion of rendering in the GPU.
+        VkSemaphore m_render_finished_semaphore;
+        // A CPU sync object that tells the CPU that the
+        // previous frame has finished rendering in the GPU.
+        VkFence m_in_flight_fence;
 
         // < -------------------- Vulkan initializations ------------------- >
 
@@ -113,11 +126,13 @@ namespace vk::tut {
         void create_swapchain_frame_buffers();
         void create_command_pool();
         void create_command_buffer();
+        void create_sync_objects();
 
         // < ------------------ END Vulkan initializations ----------------- >
 
         // < ------------------- Vulkan cleanup functions ------------------ >
 
+        void destroy_sync_objects();
         void destroy_command_pool();
         void destroy_swapchain_frame_buffers();
         void destroy_graphics_pipeline();
@@ -130,6 +145,15 @@ namespace vk::tut {
         void destroy_window();
 
         // < ----------------- END Vulkan cleanup functions ---------------- >
+
+        // < ----------------------- Vulkan commands ----------------------- >
+
+        void record_command_buffer(
+            const uint32_t& image_index
+        );
+        void draw_frame();
+
+        // < --------------------- END Vulkan commands --------------------- >
 
         // < --------------- Validation layer initializations -------------- >
 

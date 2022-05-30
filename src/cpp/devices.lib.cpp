@@ -110,6 +110,11 @@ namespace vk::tut {
             ::std::get<1>(indices.get_present_family_index()),
             0, &m_present_queue
         );
+        // Retrieve the graphics queue handle.
+        vkGetDeviceQueue(m_logical_device,
+            ::std::get<1>(indices.get_graphics_family_index()),
+            0, &m_graphics_queue
+        );
 
         VK_TUT_LOG_DEBUG("Successfully created a logical device.");
     }

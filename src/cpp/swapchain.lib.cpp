@@ -94,7 +94,7 @@ namespace vk::tut {
         // Retrieve swapchain images.
         vkGetSwapchainImagesKHR(m_logical_device, m_swapchain,
             &image_count, nullptr);
-        m_swapchain_images.reserve(image_count);
+        m_swapchain_images.resize(image_count);
         vkGetSwapchainImagesKHR(m_logical_device, m_swapchain,
             &image_count, m_swapchain_images.data());
     }
@@ -103,13 +103,14 @@ namespace vk::tut {
         m_swapchain_image_views.reserve(m_swapchain_images.size());
 
         // Loop through the swapchain images.
-        for (VkImage& image : m_swapchain_images) {
+        for (const VkImage& image : m_swapchain_images) {
             VkImageViewCreateInfo image_view_info{};
             image_view_info.sType = VkStructureType
                 ::VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
             image_view_info.image = image;
             image_view_info.viewType = VkImageViewType
                 ::VK_IMAGE_VIEW_TYPE_2D;
+            image_view_info.format = m_swapchain_image_format;
             image_view_info.components.r = VkComponentSwizzle
                 ::VK_COMPONENT_SWIZZLE_IDENTITY;
             image_view_info.components.g = VkComponentSwizzle

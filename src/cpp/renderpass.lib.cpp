@@ -32,6 +32,18 @@ namespace vk::tut {
         subpass.colorAttachmentCount = 1;
         subpass.pColorAttachments = &colour_attachment_ref;
 
+        // Renderpass subpass depencency.
+        VkSubpassDependency dependency{};
+        dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+        dependency.dstSubpass = 0;
+        dependency.srcStageMask = VkPipelineStageFlagBits
+            ::VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.srcAccessMask = 0;
+        dependency.dstStageMask = VkPipelineStageFlagBits
+            ::VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+        dependency.dstAccessMask = VkAccessFlagBits
+            ::VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
         // Render pass info.
         VkRenderPassCreateInfo render_pass_info{};
         render_pass_info.sType = VkStructureType
@@ -40,6 +52,8 @@ namespace vk::tut {
         render_pass_info.pAttachments = &colour_attachment;
         render_pass_info.subpassCount = 1;
         render_pass_info.pSubpasses = &subpass;
+        render_pass_info.dependencyCount = 1;
+        render_pass_info.pDependencies = &dependency;
 
         if (vkCreateRenderPass(m_logical_device, &render_pass_info,
         nullptr, &m_render_pass) != VK_SUCCESS) {
