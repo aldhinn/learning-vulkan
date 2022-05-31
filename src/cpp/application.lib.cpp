@@ -72,17 +72,28 @@ namespace vk::tut {
             m_in_flight_fences[m_current_frame_index], VK_TRUE,
             ::std::numeric_limits<uint64_t>::max()
         );
-        // Reset the fence for drawing in the GPU.
-        vkResetFences(m_logical_device, 1,
-            &m_in_flight_fences[m_current_frame_index]
-        );
 
         // Acquire the next available image from the swapchain.
         uint32_t image_index = 0;
-        vkAcquireNextImageKHR(m_logical_device, m_swapchain,
+        VkResult acquire_image_result = vkAcquireNextImageKHR(
+            m_logical_device, m_swapchain,
             ::std::numeric_limits<uint64_t>::max(),
             m_image_available_semaphores[m_current_frame_index],
             VK_NULL_HANDLE, &image_index
+        );
+
+        if (acquire_image_result == VK_ERROR_OUT_OF_DATE_KHR) {
+            recreate_swapchain();
+            return;
+        }
+        else if (acquire_image_result != VK_SUCCESS &&
+        acquire_image_result != VK_SUBOPTIMAL_KHR) {
+            VK_TUT_LOG_ERROR("Failed to acquire swap chain image!");
+        }
+
+        // Reset the fence for drawing in the GPU.
+        vkResetFences(m_logical_device, 1,
+            &m_in_flight_fences[m_current_frame_index]
         );
 
         // Reset the command buffer.
@@ -132,8 +143,16 @@ namespace vk::tut {
 
         // Waits for the graphics rendering before
         // presenting the image back to the swapchain.
-        if (vkQueuePresentKHR(m_present_queue, &present_info)
-        != VK_SUCCESS) {
+        VkResult present_result = vkQueuePresentKHR(
+            m_present_queue, &present_info
+        );
+
+        if (present_result == VK_ERROR_OUT_OF_DATE_KHR ||
+        present_result == VK_SUBOPTIMAL_KHR) {
+            recreate_swapchain();
+            return;
+        }
+        else if (present_result != VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to present to the swapchain.");
         }
 

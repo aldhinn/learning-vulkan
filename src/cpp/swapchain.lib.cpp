@@ -210,6 +210,25 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("Destroyed swapchain.");
     }
 
+    void Application::recreate_swapchain() {
+        // Wait for resources to be free.
+        vkDeviceWaitIdle(m_logical_device);
+
+        // Destroy the current swapchain related objects.
+        destroy_swapchain_frame_buffers();
+        destroy_graphics_pipeline();
+        destroy_render_pass();
+        destroy_swapchain_image_views();
+        destroy_swapchain();
+
+        // Recreate swapchain and related objects.
+        create_swapchain();
+        create_swapchain_image_views();
+        create_render_pass();
+        create_graphics_pipeline();
+        create_swapchain_frame_buffers();
+    }
+
     // This dictates the resoultion of the swapchain images.
     VkExtent2D choose_swap_extent(
         const VkSurfaceCapabilitiesKHR& capabilities,

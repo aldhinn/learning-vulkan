@@ -9,8 +9,6 @@ namespace vk::tut {
         // Tell GLFW not to create an OpenGL context.
         // Because DUHHH!! We're doing Vulkan here.
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        // We'll handle window resizing later.
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
         // Create the GLFW Window.
         m_ptr_window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT,

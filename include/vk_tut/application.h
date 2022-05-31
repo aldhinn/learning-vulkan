@@ -154,6 +154,7 @@ namespace vk::tut {
             const uint32_t& image_index
         );
         void draw_frame();
+        void recreate_swapchain();
 
         // < --------------------- END Vulkan commands --------------------- >
 
