@@ -3,7 +3,7 @@
 #include <utility>
 
 namespace vk::tut {
-    // Default Constructor.
+    // Move initializer list constructor.
     SwapChainSupportDetails::SwapChainSupportDetails(
         VkSurfaceCapabilitiesKHR&& capabilities,
         ::std::vector<VkSurfaceFormatKHR>&& formats,
@@ -13,23 +13,43 @@ namespace vk::tut {
     m_formats(::std::move(formats)),
     m_present_modes(::std::move(present_modes)) {}
 
+    // Move constructor.
+    SwapChainSupportDetails
+    ::SwapChainSupportDetails(SwapChainSupportDetails&& from) :
+    m_capabilities(::std::move(from.m_capabilities)),
+    m_formats(::std::move(from.m_formats)),
+    m_present_modes(::std::move(from.m_present_modes)) {}
+
+    // Move re-assignment.
+    SwapChainSupportDetails&
+    SwapChainSupportDetails::operator= (SwapChainSupportDetails&& from) {
+        m_capabilities = ::std::move(from.m_capabilities);
+        m_formats = ::std::move(from.m_formats);
+        m_present_modes = ::std::move(from.m_present_modes);
+        
+        return *this;
+    }
+
     // Gets the value of m_capabilities.
-    VkSurfaceCapabilitiesKHR SwapChainSupportDetails::get_capabilities() {
+    VkSurfaceCapabilitiesKHR
+    SwapChainSupportDetails::get_capabilities() const {
         return m_capabilities;
     }
 
     // Gets the value of m_formats.
-    ::std::vector<VkSurfaceFormatKHR> SwapChainSupportDetails::get_formats() {
+    ::std::vector<VkSurfaceFormatKHR>
+    SwapChainSupportDetails::get_formats() const {
         return m_formats;
     }
 
     // Gets the value of m_present_modes.
-    ::std::vector<VkPresentModeKHR> SwapChainSupportDetails::get_present_modes() {
+    ::std::vector<VkPresentModeKHR>
+    SwapChainSupportDetails::get_present_modes() const {
         return m_present_modes;
     }
 
     // Describes whether a device has adequate swapchain support.
-    bool SwapChainSupportDetails::is_swapchain_support_adequate() {
+    bool SwapChainSupportDetails::is_swapchain_support_adequate() const {
         return !m_formats.empty() && !m_present_modes.empty();
     }
 

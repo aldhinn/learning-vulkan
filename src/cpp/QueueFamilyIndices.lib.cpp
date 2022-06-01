@@ -5,14 +5,14 @@
 
 namespace vk::tut {
     // If all the indices have value.
-    bool QueueFamilyIndices::is_complete() {
+    bool QueueFamilyIndices::is_complete() const {
         return m_graphics_family_index.has_value() &&
         m_present_family_index.has_value();
     }
 
     // Return the unique queue family indices.
     ::std::vector<uint32_t> QueueFamilyIndices
-    ::get_unique_queue_family_indices() {
+    ::get_unique_queue_family_indices() const {
         ::std::vector<uint32_t> result;
 
         // Simply return an empty vector if incomplete.
@@ -24,16 +24,21 @@ namespace vk::tut {
         return result;
     }
 
-    // Sets the value of m_graphics_family_index.
-    void QueueFamilyIndices::set_graphics_family_index(uint32_t index) {
+    // Copy setter of m_graphics_family_index.
+    void QueueFamilyIndices::set_graphics_family_index(const uint32_t& index) {
         m_graphics_family_index = index;
+    }
+
+    // Move setter of m_graphics_family_index.
+    void QueueFamilyIndices::set_graphics_family_index(uint32_t&& index) {
+        m_graphics_family_index = ::std::move(index);
     }
 
     // Get the value of the m_graphics_family_index
     // First value is true if m_graphics_family_index has value.
     // Second value is m_graphics_family_index.value()
     ::std::tuple<bool, uint32_t> QueueFamilyIndices
-    ::get_graphics_family_index() {
+    ::get_graphics_family_index() const {
         if (!m_graphics_family_index.has_value()) {
             return ::std::make_tuple(false, 0);
         }
@@ -41,15 +46,21 @@ namespace vk::tut {
         return ::std::make_tuple(true, m_graphics_family_index.value());
     }
 
-    // Sets the value of m_present_family_index.
-    void QueueFamilyIndices::set_present_family_index(uint32_t index) {
+    // Copy setter of m_present_family_index.
+    void QueueFamilyIndices::set_present_family_index(const uint32_t& index) {
         m_present_family_index = index;
+    }
+
+    // Move setter of m_present_family_index.
+    void QueueFamilyIndices::set_present_family_index(uint32_t&& index) {
+        m_present_family_index = ::std::move(index);
     }
 
     // Get the value of the m_present_family_index.
     // First value is true if m_present_family_index has value.
     // Second value is m_present_family_index.value()
-    ::std::tuple<bool, uint32_t> QueueFamilyIndices::get_present_family_index() {
+    ::std::tuple<bool, uint32_t>
+    QueueFamilyIndices::get_present_family_index() const {
         if (!m_present_family_index.has_value()) {
             return ::std::make_tuple(false, 0);
         }

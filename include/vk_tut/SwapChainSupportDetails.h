@@ -11,22 +11,35 @@ namespace vk::tut {
     // Contains details about a physical device's swapchain support.
     class SwapChainSupportDetails final {
     public:
-        // Default Constructor.
+        // Delete no init constructor.
+        inline SwapChainSupportDetails() = delete;
+        // Move initializer list constructor.
         SwapChainSupportDetails(
             VkSurfaceCapabilitiesKHR&& capabilities,
             ::std::vector<VkSurfaceFormatKHR>&& formats,
             ::std::vector<VkPresentModeKHR>&& present_modes
         );
 
+        // Prevent copying.
+        inline SwapChainSupportDetails(const SwapChainSupportDetails&) = delete;
+        // Move constructor.
+        SwapChainSupportDetails(SwapChainSupportDetails&&);
+
+        // Prevent copy re-assignment.
+        inline constexpr SwapChainSupportDetails&
+        operator= (const SwapChainSupportDetails&) = delete;
+        // Move re-assignment.
+        SwapChainSupportDetails& operator= (SwapChainSupportDetails&&);
+
         // Gets the value of m_capabilities.
-        VkSurfaceCapabilitiesKHR get_capabilities();
+        VkSurfaceCapabilitiesKHR get_capabilities() const;
         // Gets the value of m_formats.
-        ::std::vector<VkSurfaceFormatKHR> get_formats();
+        ::std::vector<VkSurfaceFormatKHR> get_formats() const;
         // Gets the value of m_present_modes.
-        ::std::vector<VkPresentModeKHR> get_present_modes();
+        ::std::vector<VkPresentModeKHR> get_present_modes() const;
 
         // Describes whether a device has adequate swapchain support.
-        bool is_swapchain_support_adequate();
+        bool is_swapchain_support_adequate() const;
 
     private:
         VkSurfaceCapabilitiesKHR m_capabilities;

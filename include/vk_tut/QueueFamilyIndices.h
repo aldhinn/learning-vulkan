@@ -19,30 +19,34 @@ namespace vk::tut {
         inline QueueFamilyIndices() {}
 
         // If all the desired indices have value.
-        bool is_complete();
+        bool is_complete() const;
         // Return the unique queue family indices.
-        ::std::vector<uint32_t> get_unique_queue_family_indices();
+        ::std::vector<uint32_t> get_unique_queue_family_indices() const;
 
-        // Sets the value of m_graphics_family_index.
-        void set_graphics_family_index(uint32_t index);
+        // Copy setter of m_graphics_family_index.
+        void set_graphics_family_index(const uint32_t& index);
+        // Move setter of m_graphics_family_index.
+        void set_graphics_family_index(uint32_t&& index);
         // Get the value of the m_graphics_family_index.
         // First value is true if m_graphics_family_index has value.
         // Second value is m_graphics_family_index.value()
-        ::std::tuple<bool, uint32_t> get_graphics_family_index();
+        ::std::tuple<bool, uint32_t> get_graphics_family_index() const;
 
-        // Sets the value of m_present_family_index.
-        void set_present_family_index(uint32_t index);
+        // Copy setter of m_present_family_index.
+        void set_present_family_index(const uint32_t& index);
+        // Move setter of m_present_family_index.
+        void set_present_family_index(uint32_t&& index);
         // Get the value of the m_present_family_index.
         // First value is true if m_present_family_index has value.
         // Second value is m_present_family_index.value()
-        ::std::tuple<bool, uint32_t> get_present_family_index();
+        ::std::tuple<bool, uint32_t> get_present_family_index() const;
 
     private:
         // The index of a queue family that has the
         // VK_QUEUE_GRAPHICS_BIT raised in the queue flags.
-        ::std::optional<uint32_t> m_graphics_family_index;
+        mutable ::std::optional<uint32_t> m_graphics_family_index;
         // The index of a queue family that has present support.
-        ::std::optional<uint32_t> m_present_family_index;
+        mutable ::std::optional<uint32_t> m_present_family_index;
     };
 
     // Find the family indices of a specific physical device.
