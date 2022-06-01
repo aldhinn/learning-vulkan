@@ -1,13 +1,18 @@
 #version 450
 
-layout(location = 0) in vec2 in_position;
+// The first 2 floats layed out in the vertex input are the 2D positions.
+layout(location = 0) in vec2 in_2D_positions;
+// The final 3 floats layed out in the vertex
+// input are the normalized RGB colour value.
 layout(location = 1) in vec3 in_colour;
 
-layout(location = 0) out vec3 frag_colour;
+// To be passed to the next shader stage,
+// which in our case is the fragment shader.
+layout(location = 0) out vec3 out_frag_colour;
 
 // Shader entrypoint.
 void main() {
-    // Predefined variable gl_Position maps the position in the screen.
-    gl_Position = vec4(in_position, 0.0, 1.0);
-    frag_colour = in_colour;
+    // gl_Position is a built in shader variable specifying the vertex position.
+    gl_Position = vec4(in_2D_positions, 0.0, 1.0);
+    out_frag_colour = in_colour;
 }
