@@ -207,6 +207,23 @@ namespace vk::tut {
         const uint32_t& type_filter,
         const VkMemoryPropertyFlags& properties
     );
+    void create_and_allocate_buffer(
+        const VkPhysicalDevice& physical_device,
+        const VkDevice& logical_device,
+        const VkDeviceSize& device_size,
+        const VkBufferUsageFlags& usage_flags,
+        const VkMemoryPropertyFlags& memory_properties,
+        VkBuffer* ptr_buffer,
+        VkDeviceMemory* ptr_buffer_memory
+    );
+    void copy_buffer(
+        const VkDevice& logical_device,
+        const VkCommandPool& command_pool,
+        const VkQueue& queue,
+        const VkBuffer& src_buffer,
+        const VkBuffer& dest_buffer,
+        const VkDeviceSize& buffer_size
+    );
 
     // < --------------------- END Helper functions -------------------- >
 
