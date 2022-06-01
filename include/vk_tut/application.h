@@ -13,6 +13,8 @@
 #endif
 #endif
 
+#include "vk_tut/vertex.h"
+
 // C++ only region.
 #if defined(__cplusplus)
 
@@ -100,6 +102,16 @@ namespace vk::tut {
         ::std::vector<VkFramebuffer> m_swapchain_frame_buffers;
         // The command pool handle.
         VkCommandPool m_command_pool;
+        // The value of the vertices of the object to be rendered.
+        ::std::vector<Vertex> m_vertices = {
+            {{-0.75, -0.75}, {1.0, 1.0, 1.0}},
+            {{0.75, -0.75}, {0.0, 1.0, 0.0}},
+            {{0.0, 0.75}, {0.0, 0.0, 1.0}}
+        };
+        // The handle to the vertex buffer.
+        VkBuffer m_vertex_buffer;
+        // The handle to the memory of the vertex buffer in the GPU.
+        VkDeviceMemory m_vertex_buffer_memory;
         // The index of the current frame being rendered.
         uint32_t m_current_frame_index = 0;
         // The command buffer handles.
@@ -127,6 +139,7 @@ namespace vk::tut {
         void create_graphics_pipeline();
         void create_swapchain_frame_buffers();
         void create_command_pool();
+        void create_vertex_buffer();
         void create_command_buffers();
         void create_sync_objects();
 
@@ -135,6 +148,7 @@ namespace vk::tut {
         // < ------------------- Vulkan cleanup functions ------------------ >
 
         void destroy_sync_objects();
+        void destroy_vertex_buffer();
         void destroy_command_pool();
         void destroy_swapchain_frame_buffers();
         void destroy_graphics_pipeline();
@@ -187,6 +201,11 @@ namespace vk::tut {
     VkExtent2D choose_swap_extent(
         const VkSurfaceCapabilitiesKHR& capabilities,
         GLFWwindow* ptr_window
+    );
+    uint32_t find_memory_requirements(
+        const VkPhysicalDevice& physical_device,
+        const uint32_t& type_filter,
+        const VkMemoryPropertyFlags& properties
     );
 
     // < --------------------- END Helper functions -------------------- >

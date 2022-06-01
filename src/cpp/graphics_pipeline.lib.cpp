@@ -1,14 +1,25 @@
 #include "vk_tut/application.h"
 #include "vk_tut/logging.h"
 #include "vk_tut/shaders.h"
+#include "vk_tut/vertex.h"
 
 namespace vk::tut {
     void Application::create_graphics_pipeline() {
-        // Not much is set here since we're hardcoding vertices in the
-        // shaders for now. TODO : Implement.
+        VkVertexInputBindingDescription binding_description =
+            Vertex::get_binding_description();
+        std::array<VkVertexInputAttributeDescription, 2>
+        attribute_descriptions = Vertex::get_attribute_descriptions();
+        
         VkPipelineVertexInputStateCreateInfo vertex_input_state_info{};
         vertex_input_state_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vertex_input_state_info.vertexBindingDescriptionCount = 1;
+        vertex_input_state_info.pVertexBindingDescriptions =
+            &binding_description;
+        vertex_input_state_info.vertexAttributeDescriptionCount =
+            static_cast<uint32_t>(attribute_descriptions.size());
+        vertex_input_state_info.pVertexAttributeDescriptions =
+            attribute_descriptions.data();
         
         // Input assembly stage.
         VkPipelineInputAssemblyStateCreateInfo input_assembly_info{};

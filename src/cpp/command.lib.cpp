@@ -119,8 +119,15 @@ namespace vk::tut {
             m_graphics_pipeline
         );
 
+        // Bind the vertex buffers.
+        VkDeviceSize offsets[] = {0};
+        vkCmdBindVertexBuffers(m_command_buffers[m_current_frame_index],
+            0, 1, &m_vertex_buffer, offsets
+        );
+
         // Draw the three vertices specified in our vertex shader.
-        vkCmdDraw(m_command_buffers[m_current_frame_index], 3, 1, 0, 0);
+        vkCmdDraw(m_command_buffers[m_current_frame_index],
+            static_cast<uint32_t>(m_vertices.size()), 1, 0, 0);
 
         // End the render pass.
         vkCmdEndRenderPass(m_command_buffers[m_current_frame_index]);
