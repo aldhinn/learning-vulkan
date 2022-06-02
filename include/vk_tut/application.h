@@ -104,14 +104,27 @@ namespace vk::tut {
         VkCommandPool m_command_pool;
         // The value of the vertices of the object to be rendered.
         ::std::vector<Vertex> m_vertices = {
-            {{-0.75, -0.75}, {1.0, 1.0, 1.0}},
-            {{0.75, -0.75}, {0.0, 1.0, 0.0}},
-            {{0.0, 0.75}, {0.0, 0.0, 1.0}}
+            {{0.0f, 0.0f}, {0.35f, 0.96f, 0.9f}},
+            {{0.5f, 0.0f}, {0.3f, 0.6f, 0.9f}},
+            {{0.43f, -0.25f}, {0.83f, 0.16f, 0.3f}},
+            {{0.25f, -0.43f}, {0.3f, 0.86f, 0.9f}},
+            {{0.0f, -0.5f}, {0.53f, 0.56f, 0.5f}},
+            {{-0.25f, -0.43f}, {0.13f, 0.6f, 0.9f}},
+            {{-0.43f, -0.25f}, {0.3f, 0.96f, 0.9f}},
+            {{-0.5f, 0.0f}, {0.93f, 0.6f, 0.1f}}
+        };
+        // The value of the index buffers of the object to be rendered.
+        ::std::vector<uint32_t> m_indices = {
+            2, 1, 0, 3, 2, 0, 4, 3, 0, 5, 4, 0, 6, 5, 0, 7, 6, 0
         };
         // The handle to the vertex buffer.
         VkBuffer m_vertex_buffer;
         // The handle to the memory of the vertex buffer in the GPU.
         VkDeviceMemory m_vertex_buffer_memory;
+        // The handle to the index buffer.
+        VkBuffer m_index_buffer;
+        // The handle to the memory of the vertex buffer in the GPU.
+        VkDeviceMemory m_index_buffer_memory;
         // The index of the current frame being rendered.
         uint32_t m_current_frame_index = 0;
         // The command buffer handles.
@@ -140,6 +153,7 @@ namespace vk::tut {
         void create_swapchain_frame_buffers();
         void create_command_pool();
         void create_vertex_buffer();
+        void create_index_buffer();
         void create_command_buffers();
         void create_sync_objects();
 
@@ -148,6 +162,7 @@ namespace vk::tut {
         // < ------------------- Vulkan cleanup functions ------------------ >
 
         void destroy_sync_objects();
+        void destroy_index_buffer();
         void destroy_vertex_buffer();
         void destroy_command_pool();
         void destroy_swapchain_frame_buffers();

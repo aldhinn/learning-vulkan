@@ -23,6 +23,7 @@ namespace vk::tut {
         create_swapchain_frame_buffers();
         create_command_pool();
         create_vertex_buffer();
+        create_index_buffer();
         create_command_buffers();
         create_sync_objects();
 
@@ -34,6 +35,7 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("...Cleaning up application data...");
 
         destroy_sync_objects();
+        destroy_index_buffer();
         destroy_vertex_buffer();
         destroy_command_pool();
         destroy_swapchain_frame_buffers();

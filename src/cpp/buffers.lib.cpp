@@ -54,15 +54,79 @@ namespace vk::tut {
             staging_vertex_buffer, m_vertex_buffer, buffer_size
         );
 
-        vkDestroyBuffer(m_logical_device, staging_vertex_buffer, nullptr);
         vkFreeMemory(m_logical_device, staging_vertex_buffer_memory, nullptr);
+        vkDestroyBuffer(m_logical_device, staging_vertex_buffer, nullptr);
 
         VK_TUT_LOG_DEBUG("Successfully created and allocated vertex buffer.");
     }
 
+    void Application::create_index_buffer() {
+        VkDeviceSize buffer_size = static_cast<VkDeviceSize>(
+            sizeof(Vertex) * m_indices.size()
+        );
+
+        // The CPU accessible vertex buffer.
+        VkBuffer staging_vertex_buffer;
+        // The CPU accessible vertex buffer memory.
+        VkDeviceMemory staging_vertex_buffer_memory;
+
+        // Create and allocate the staging buffer.
+        create_and_allocate_buffer(
+            m_physical_device,
+            m_logical_device,
+            buffer_size,
+            VkBufferUsageFlagBits::VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+            VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            &staging_vertex_buffer,
+            &staging_vertex_buffer_memory
+        );
+
+        // Filling the buffer.
+        void* data;
+        vkMapMemory(m_logical_device, staging_vertex_buffer_memory, 0,
+            buffer_size, 0, &data
+        );
+        memcpy(data, m_indices.data(),
+            static_cast<size_t>(buffer_size)
+        );
+        vkUnmapMemory(m_logical_device, staging_vertex_buffer_memory);
+
+        // Create the actual index buffer.
+        create_and_allocate_buffer(
+            m_physical_device,
+            m_logical_device,
+            buffer_size,
+            VkBufferUsageFlagBits::VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+            VkBufferUsageFlagBits::VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+            &m_index_buffer,
+            &m_index_buffer_memory
+        );
+
+        // Copy the staging buffer to the vertex buffer.
+        copy_buffer(
+            m_logical_device, m_command_pool, m_graphics_queue,
+            staging_vertex_buffer, m_index_buffer, buffer_size
+        );
+
+        vkFreeMemory(m_logical_device, staging_vertex_buffer_memory, nullptr);
+        vkDestroyBuffer(m_logical_device, staging_vertex_buffer, nullptr);
+
+
+        VK_TUT_LOG_DEBUG("Successfully created and allocated index buffer.");
+    }
+
+    void Application::destroy_index_buffer() {
+        vkFreeMemory(m_logical_device, m_index_buffer_memory, nullptr);
+        vkDestroyBuffer(m_logical_device, m_index_buffer, nullptr);
+
+        VK_TUT_LOG_DEBUG("Destroyed index buffer.");
+    }
+
     void Application::destroy_vertex_buffer() {
-        vkDestroyBuffer(m_logical_device, m_vertex_buffer, nullptr);
         vkFreeMemory(m_logical_device, m_vertex_buffer_memory, nullptr);
+        vkDestroyBuffer(m_logical_device, m_vertex_buffer, nullptr);
 
         VK_TUT_LOG_DEBUG("Destroyed vertex buffer.");
     }

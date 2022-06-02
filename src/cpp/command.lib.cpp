@@ -125,9 +125,14 @@ namespace vk::tut {
             0, 1, &m_vertex_buffer, offsets
         );
 
+        // Bind the index buffers.
+        vkCmdBindIndexBuffer(m_command_buffers[m_current_frame_index],
+            m_index_buffer, 0, VkIndexType::VK_INDEX_TYPE_UINT32
+        );
+
         // Draw the three vertices specified in our vertex shader.
-        vkCmdDraw(m_command_buffers[m_current_frame_index],
-            static_cast<uint32_t>(m_vertices.size()), 1, 0, 0);
+        vkCmdDrawIndexed(m_command_buffers[m_current_frame_index],
+            static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0);
 
         // End the render pass.
         vkCmdEndRenderPass(m_command_buffers[m_current_frame_index]);
