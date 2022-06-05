@@ -104,14 +104,14 @@ namespace vk::tut {
         VkCommandPool m_command_pool;
         // The value of the vertices of the object to be rendered.
         ::std::vector<Vertex> m_vertices = {
-            {{0.0f, 0.0f}, {0.35f, 0.96f, 0.9f}},
-            {{0.5f, 0.0f}, {0.3f, 0.6f, 0.9f}},
-            {{0.43f, -0.25f}, {0.83f, 0.16f, 0.3f}},
-            {{0.25f, -0.43f}, {0.3f, 0.86f, 0.9f}},
-            {{0.0f, -0.5f}, {0.53f, 0.56f, 0.5f}},
-            {{-0.25f, -0.43f}, {0.13f, 0.6f, 0.9f}},
-            {{-0.43f, -0.25f}, {0.3f, 0.96f, 0.9f}},
-            {{-0.5f, 0.0f}, {0.93f, 0.6f, 0.1f}}
+            {{0.0f, 0.0f, 0.0f},        {0.5f, 0.5f, 0.5f}},
+            {{0.5f, 0.0f, 0.0f},        {0.3f, 0.6f, 1.0f}},
+            {{0.43f, -0.25f, 0.0f},     {0.6f, 0.3f, 1.0f}},
+            {{0.25f, -0.43f, 0.0f},     {1.0f, 0.0f, 0.6f}},
+            {{0.0f, -0.5f, 0.0f},       {1.0f, 0.3f, 0.3f}},
+            {{-0.25f, -0.43f, 0.0f},    {0.6f, 0.6f, 0.0f}},
+            {{-0.43f, -0.25f, 0.0f},    {0.3f, 1.0f, 0.3f}},
+            {{-0.5f, 0.0f, 0.0f},       {0.0f, 1.0f, 0.6f}}
         };
         // The value of the index buffers of the object to be rendered.
         ::std::vector<uint32_t> m_indices = {

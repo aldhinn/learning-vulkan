@@ -16,9 +16,15 @@ namespace vk::tut {
         inline Vertex() {}
 
         // Copy initializer list.
-        Vertex(const ::glm::vec2&, const ::glm::vec3&);
+        Vertex(
+            const ::glm::vec3& _3D_position,
+            const ::glm::vec3& colour
+        );
         // Move initializer list.
-        Vertex(::glm::vec2&&, ::glm::vec3&&);
+        Vertex(
+            ::glm::vec3&& _3D_position,
+            ::glm::vec3&& colour
+        );
 
         // Copy constructor.
         Vertex(const Vertex&);
@@ -29,12 +35,12 @@ namespace vk::tut {
         // Move re-assignment.
         Vertex& operator= (Vertex&&);
 
-        // Getter for m_2D_position.
-        inline ::glm::vec2 get_2D_position() const { return m_2D_position; }
-        // Copy setter for m_2D_position.
-        void set_2D_position(const ::glm::vec2&);
-        // Move setter for m_2D_position.
-        void set_2D_position(::glm::vec2&&);
+        // Getter for m_3D_position.
+        inline ::glm::vec3 get_3D_position() const { return m_3D_position; }
+        // Copy setter for m_3D_position.
+        void set_3D_position(const ::glm::vec3&);
+        // Move setter for m_3D_position.
+        void set_3D_position(::glm::vec3&&);
 
         // Getter for m_colour.
         inline ::glm::vec3 get_colour() const { return m_colour; }
@@ -49,8 +55,8 @@ namespace vk::tut {
         get_attribute_descriptions();
 
     private:
-        // The 2 dimensional coordinate of the position in the screen.
-        ::glm::vec2 m_2D_position;
+        // The 3 dimensional coordinate of the position in the screen.
+        ::glm::vec3 m_3D_position;
         // The normalized RGB colour value.
         ::glm::vec3 m_colour;
     };

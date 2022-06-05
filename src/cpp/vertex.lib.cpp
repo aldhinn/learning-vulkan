@@ -4,47 +4,52 @@
 
 namespace vk::tut {
     // Copy initializer list.
-    Vertex::Vertex(const ::glm::vec2& _2D_position, const ::glm::vec3& colour) :
-    m_2D_position(_2D_position),
-    m_colour(colour) {}
+    Vertex::Vertex(
+        const ::glm::vec3& _3D_position,
+        const ::glm::vec3& colour
+    ) : m_3D_position(_3D_position), m_colour(colour) {}
 
     // Move initializer list.
-    Vertex::Vertex(::glm::vec2&& _2D_position, ::glm::vec3&& colour) :
-    m_2D_position(::std::move(_2D_position)),
+    Vertex::Vertex(
+        ::glm::vec3&& _3D_position,
+        ::glm::vec3&& colour
+    ) :
+    m_3D_position(::std::move(_3D_position)),
     m_colour(::std::move(colour)) {}
 
     // Copy constructor.
     Vertex::Vertex(const Vertex& from) :
-    m_2D_position(from.m_2D_position),
+    m_3D_position(from.m_3D_position),
     m_colour(from.m_colour) {}
 
     // Move constructor.
     Vertex::Vertex(Vertex&& from) :
-    m_2D_position(::std::move(from.m_2D_position)),
+    m_3D_position(::std::move(from.m_3D_position)),
     m_colour(::std::move(from.m_colour)) {}
 
     // Copy re-assignment.
     Vertex& Vertex::operator= (const Vertex& from) {
-        m_2D_position = from.m_2D_position;
+        m_3D_position = from.m_3D_position;
         m_colour = from.m_colour;
+
         return *this;
     }
 
     // Move re-assignment.
     Vertex& Vertex::operator= (Vertex&& from) {
-        m_2D_position = ::std::move(from.m_2D_position);
+        m_3D_position = ::std::move(from.m_3D_position);
         m_colour = ::std::move(from.m_colour);
         return *this;
     }
 
     // Copy setter for m_2D_position.
-    void Vertex::set_2D_position(const ::glm::vec2& _2D_position) {
-        m_2D_position = _2D_position;
+    void Vertex::set_3D_position(const ::glm::vec3& _3D_position) {
+        m_3D_position = _3D_position;
     }
 
     // Move setter for m_2D_position.
-    void Vertex::set_2D_position(::glm::vec2&& _2D_position) {
-        m_2D_position = ::std::move(_2D_position);
+    void Vertex::set_3D_position(::glm::vec3&& _3D_position) {
+        m_3D_position = ::std::move(_3D_position);
     }
 
     // Copy setter for m_colour.
@@ -74,14 +79,14 @@ namespace vk::tut {
         attribute_descriptions{};
 
         // Tells vulkan how to find the values to be
-        // assigned to the 2 coordinates of inPosition.
+        // assigned to the 3 coordinates of in_3D_position.
         attribute_descriptions[0].binding = 0;
         attribute_descriptions[0].location = 0;
-        attribute_descriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-        attribute_descriptions[0].offset = offsetof(Vertex, m_2D_position);
+        attribute_descriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+        attribute_descriptions[0].offset = offsetof(Vertex, m_3D_position);
 
         // Tells vulkan how to find the values to be
-        // assigned to the 3 coordinates of inColor.
+        // assigned to the 3 coordinates of in_colour.
         attribute_descriptions[1].binding = 0;
         attribute_descriptions[1].location = 1;
         attribute_descriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
