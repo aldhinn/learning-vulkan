@@ -18,15 +18,28 @@ namespace vk::tut {
         // Default constructor.
         inline QueueFamilyIndices() {}
 
-        // If all the desired indices have value.
+        // Copy initializer list constructor.
+        QueueFamilyIndices(
+            const uint32_t& graphics_family_index,
+            const uint32_t& present_family_index
+        );
+
+        // Copy constructor.
+        QueueFamilyIndices(const QueueFamilyIndices&);
+        // Move constructor.
+        QueueFamilyIndices(QueueFamilyIndices&&);
+        // Copy re-assignment.
+        QueueFamilyIndices& operator= (const QueueFamilyIndices&);
+        // Move re-assignment.
+        QueueFamilyIndices& operator= (QueueFamilyIndices&&);
+
+        // If all the desired indices have values.
         bool is_complete() const;
         // Return the unique queue family indices.
         ::std::vector<uint32_t> get_unique_queue_family_indices() const;
 
         // Copy setter of m_graphics_family_index.
         void set_graphics_family_index(const uint32_t& index);
-        // Move setter of m_graphics_family_index.
-        void set_graphics_family_index(uint32_t&& index);
         // Get the value of the m_graphics_family_index.
         // First value is true if m_graphics_family_index has value.
         // Second value is m_graphics_family_index.value()
@@ -34,8 +47,6 @@ namespace vk::tut {
 
         // Copy setter of m_present_family_index.
         void set_present_family_index(const uint32_t& index);
-        // Move setter of m_present_family_index.
-        void set_present_family_index(uint32_t&& index);
         // Get the value of the m_present_family_index.
         // First value is true if m_present_family_index has value.
         // Second value is m_present_family_index.value()
@@ -44,9 +55,9 @@ namespace vk::tut {
     private:
         // The index of a queue family that has the
         // VK_QUEUE_GRAPHICS_BIT raised in the queue flags.
-        mutable ::std::optional<uint32_t> m_graphics_family_index;
+        ::std::optional<uint32_t> m_graphics_family_index;
         // The index of a queue family that has present support.
-        mutable ::std::optional<uint32_t> m_present_family_index;
+        ::std::optional<uint32_t> m_present_family_index;
     };
 
     // Find the family indices of a specific physical device.

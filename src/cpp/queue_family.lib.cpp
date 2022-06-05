@@ -1,9 +1,44 @@
-#include "vk_tut/QueueFamilyIndices.h"
+#include "vk_tut/queue_family.h"
 #include "vk_tut/logging.h"
 
 #include <vector>
 
 namespace vk::tut {
+    // Copy initializer list constructor.
+    QueueFamilyIndices::QueueFamilyIndices(
+        const uint32_t& graphics_family_index,
+        const uint32_t& present_family_index
+    ) : m_graphics_family_index(graphics_family_index),
+    m_present_family_index(present_family_index) {}
+
+    // Copy constructor.
+    QueueFamilyIndices::QueueFamilyIndices(const QueueFamilyIndices& from) :
+    m_graphics_family_index(from.m_graphics_family_index),
+    m_present_family_index(from.m_present_family_index) {}
+
+    // Move constructor.
+    QueueFamilyIndices::QueueFamilyIndices(QueueFamilyIndices&& from) :
+    m_graphics_family_index(::std::move(from.m_graphics_family_index)),
+    m_present_family_index(::std::move(from.m_present_family_index)) {}
+
+    // Copy re-assignment.
+    QueueFamilyIndices&
+    QueueFamilyIndices::operator= (const QueueFamilyIndices& from) {
+        m_graphics_family_index = from.m_graphics_family_index;
+        m_present_family_index = from.m_present_family_index;
+
+        return *this;
+    }
+    
+    // Move re-assignment.
+    QueueFamilyIndices&
+    QueueFamilyIndices::operator= (QueueFamilyIndices&& from) {
+        m_graphics_family_index = ::std::move(from.m_graphics_family_index);
+        m_present_family_index = ::std::move(from.m_present_family_index);
+
+        return *this;
+    }
+
     // If all the indices have value.
     bool QueueFamilyIndices::is_complete() const {
         return m_graphics_family_index.has_value() &&
@@ -29,11 +64,6 @@ namespace vk::tut {
         m_graphics_family_index = index;
     }
 
-    // Move setter of m_graphics_family_index.
-    void QueueFamilyIndices::set_graphics_family_index(uint32_t&& index) {
-        m_graphics_family_index = ::std::move(index);
-    }
-
     // Get the value of the m_graphics_family_index
     // First value is true if m_graphics_family_index has value.
     // Second value is m_graphics_family_index.value()
@@ -49,11 +79,6 @@ namespace vk::tut {
     // Copy setter of m_present_family_index.
     void QueueFamilyIndices::set_present_family_index(const uint32_t& index) {
         m_present_family_index = index;
-    }
-
-    // Move setter of m_present_family_index.
-    void QueueFamilyIndices::set_present_family_index(uint32_t&& index) {
-        m_present_family_index = ::std::move(index);
     }
 
     // Get the value of the m_present_family_index.

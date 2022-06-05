@@ -1,4 +1,4 @@
-#include "vk_tut/SwapChainSupportDetails.h"
+#include "vk_tut/swapchain_support.h"
 
 #include <utility>
 

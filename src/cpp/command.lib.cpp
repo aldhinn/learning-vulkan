@@ -1,6 +1,6 @@
 #include "vk_tut/application.h"
 #include "vk_tut/logging.h"
-#include "vk_tut/QueueFamilyIndices.h"
+#include "vk_tut/queue_family.h"
 
 namespace vk::tut {
     void Application::create_command_pool() {

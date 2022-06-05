@@ -1,6 +1,6 @@
 #include "vk_tut/application.h"
 #include "vk_tut/logging.h"
-#include "vk_tut/shaders.h"
+#include "vk_tut/shader_parser.h"
 #include "vk_tut/vertex.h"
 
 namespace vk::tut {

@@ -31,13 +31,13 @@ namespace vk::tut {
 
         // Getter for m_2D_position.
         inline ::glm::vec2 get_2D_position() const { return m_2D_position; }
-        // Getter for m_colour.
-        inline ::glm::vec3 get_colour() const { return m_colour; }
-
         // Copy setter for m_2D_position.
         void set_2D_position(const ::glm::vec2&);
         // Move setter for m_2D_position.
         void set_2D_position(::glm::vec2&&);
+
+        // Getter for m_colour.
+        inline ::glm::vec3 get_colour() const { return m_colour; }
         // Copy setter for m_colour.
         void set_colour(const ::glm::vec3&);
         // Move setter for m_colour.
@@ -50,9 +50,9 @@ namespace vk::tut {
 
     private:
         // The 2 dimensional coordinate of the position in the screen.
-        mutable ::glm::vec2 m_2D_position;
+        ::glm::vec2 m_2D_position;
         // The normalized RGB colour value.
-        mutable ::glm::vec3 m_colour;
+        ::glm::vec3 m_colour;
     };
 }
 
