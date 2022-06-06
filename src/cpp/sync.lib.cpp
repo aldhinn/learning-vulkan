@@ -17,7 +17,7 @@ namespace vk::tut {
 
             if (vkCreateSemaphore(m_logical_device,
             &image_available_semaphore_info, nullptr,
-            &image_available_semaphore) != VK_SUCCESS) {
+            &image_available_semaphore) != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR(
                     "Failed to create image_available_semaphore."
                 );
@@ -42,7 +42,7 @@ namespace vk::tut {
 
             if (vkCreateSemaphore(m_logical_device,
             &render_finished_semaphore_info, nullptr,
-            &render_finished_semaphore) != VK_SUCCESS) {
+            &render_finished_semaphore) != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR("Failed to create render_finished_semaphore.");
             }
 
@@ -65,7 +65,7 @@ namespace vk::tut {
             VkFence in_flight_fence;
 
             if (vkCreateFence(m_logical_device, &in_flight_fence_info,
-            nullptr, &in_flight_fence) != VK_SUCCESS) {
+            nullptr, &in_flight_fence) != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR("Failed to create in_flight_fence.");
             }
 

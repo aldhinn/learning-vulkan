@@ -54,7 +54,8 @@ namespace vk::tut {
         VkShaderModule shader_module;
 
         if (vkCreateShaderModule(logical_device,
-        &shader_module_info, nullptr, &shader_module) != VK_SUCCESS) {
+        &shader_module_info, nullptr, &shader_module) 
+        != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create shader module."
             );

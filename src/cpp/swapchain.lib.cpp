@@ -83,7 +83,7 @@ namespace vk::tut {
         }
         
         if (vkCreateSwapchainKHR(m_logical_device, &swapchain_info,
-        nullptr, &m_swapchain) != VK_SUCCESS) {
+        nullptr, &m_swapchain) != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create a swapchain."
             );
@@ -130,7 +130,7 @@ namespace vk::tut {
             VkImageView image_view;
 
             if (vkCreateImageView(m_logical_device, &image_view_info,
-            nullptr, &image_view) != VK_SUCCESS) {
+            nullptr, &image_view) != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR(
                     "Failed to create a swapchain image view."
                 );
@@ -168,7 +168,8 @@ namespace vk::tut {
 
             // Create the framebuffer.
             if (vkCreateFramebuffer(m_logical_device,
-            &frame_buffer_info, nullptr, &frame_buffer) != VK_SUCCESS) {
+            &frame_buffer_info, nullptr, &frame_buffer)
+            != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR(
                     "Failed to create framebuffer."
                 );

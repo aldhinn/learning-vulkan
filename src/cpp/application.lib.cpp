@@ -105,7 +105,7 @@ namespace vk::tut {
             recreate_swapchain();
             return;
         }
-        else if (acquire_image_result != VK_SUCCESS &&
+        else if (acquire_image_result != VkResult::VK_SUCCESS &&
         acquire_image_result != VK_SUBOPTIMAL_KHR) {
             VK_TUT_LOG_ERROR("Failed to acquire swap chain image!");
         }
@@ -147,7 +147,7 @@ namespace vk::tut {
         // Submit to the graphics queue.
         // Signals the m_in_flight_fence when graphics rendering is done.
         if (vkQueueSubmit(m_graphics_queue, 1, &submit_info,
-        m_in_flight_fences[m_current_frame_index]) != VK_SUCCESS) {
+        m_in_flight_fences[m_current_frame_index]) != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to submit draw command buffer.");
         }
 
@@ -173,7 +173,7 @@ namespace vk::tut {
             recreate_swapchain();
             return;
         }
-        else if (present_result != VK_SUCCESS) {
+        else if (present_result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to present to the swapchain.");
         }
 

@@ -86,7 +86,7 @@ namespace vk::tut {
         rasterization_info.polygonMode = VkPolygonMode::VK_POLYGON_MODE_FILL;
         rasterization_info.lineWidth = 1.0f;
         rasterization_info.cullMode = VkCullModeFlagBits::VK_CULL_MODE_NONE;
-        rasterization_info.frontFace = VkFrontFace::VK_FRONT_FACE_MAX_ENUM;
+        rasterization_info.frontFace = VkFrontFace::VK_FRONT_FACE_COUNTER_CLOCKWISE;
         rasterization_info.depthBiasEnable = VK_FALSE;
 
         // Multisampling.
@@ -144,7 +144,7 @@ namespace vk::tut {
         // Create the pipeline layout.
         if (vkCreatePipelineLayout(m_logical_device,
         &graphics_pipeline_layout_info, nullptr, &m_graphics_pipeline_layout)
-        != VK_SUCCESS) {
+        != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create graphics pipeline layout."
             );
@@ -168,7 +168,7 @@ namespace vk::tut {
         // Create the graphics pipeline.
         if (vkCreateGraphicsPipelines(m_logical_device, nullptr, 1,
         &graphics_pipeline_info, nullptr, &m_graphics_pipeline)
-        != VK_SUCCESS) {
+        != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create graphics pipeline."
             );

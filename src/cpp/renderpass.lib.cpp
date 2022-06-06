@@ -56,7 +56,7 @@ namespace vk::tut {
         render_pass_info.pDependencies = &dependency;
 
         if (vkCreateRenderPass(m_logical_device, &render_pass_info,
-        nullptr, &m_render_pass) != VK_SUCCESS) {
+        nullptr, &m_render_pass) != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create render pass."
             );

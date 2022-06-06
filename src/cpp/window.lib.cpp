@@ -19,7 +19,7 @@ namespace vk::tut {
 
     void Application::create_surface() {
         if (glfwCreateWindowSurface(m_vulkan_instance,
-        m_ptr_window, nullptr, &m_surface) != VK_SUCCESS) {
+        m_ptr_window, nullptr, &m_surface) != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to create a surface.");
         }
 

@@ -78,7 +78,7 @@ namespace vk::tut {
 
         // Create the Vulkan instance.
         if (vkCreateInstance(&vulkan_instance_info, nullptr,
-        &m_vulkan_instance) != VK_SUCCESS) {
+        &m_vulkan_instance) != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to create vulkan instance.");
         }
 

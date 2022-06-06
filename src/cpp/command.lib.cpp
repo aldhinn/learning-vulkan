@@ -26,7 +26,7 @@ namespace vk::tut {
         
         // Create the command pool.
         if (vkCreateCommandPool(m_logical_device, &command_pool_info,
-        nullptr, &m_command_pool) != VK_SUCCESS) {
+        nullptr, &m_command_pool) != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create command pool."
             );
@@ -53,7 +53,7 @@ namespace vk::tut {
 
             // Allocate command buffer.
             if (vkAllocateCommandBuffers(m_logical_device,
-            &command_buffer_info, &command_buffer) != VK_SUCCESS) {
+            &command_buffer_info, &command_buffer) != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR(
                     "Failed to allocate command buffer."
                 );
@@ -84,7 +84,7 @@ namespace vk::tut {
         command_buffer_begin_info.pInheritanceInfo = nullptr;
         
         if (vkBeginCommandBuffer(m_command_buffers[m_current_frame_index],
-        &command_buffer_begin_info) != VK_SUCCESS) {
+        &command_buffer_begin_info) != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to begin recording command buffer."
             );
@@ -147,7 +147,7 @@ namespace vk::tut {
 
         // End command buffer recording.
         if (vkEndCommandBuffer(m_command_buffers[m_current_frame_index])
-        != VK_SUCCESS) {
+        != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to record command buffer.");
         }
     }

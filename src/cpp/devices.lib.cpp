@@ -99,7 +99,7 @@ namespace vk::tut {
         
         // Create the logical device.
         if(vkCreateDevice(m_physical_device, &logical_device_info,
-        nullptr, &m_logical_device) != VK_SUCCESS) {
+        nullptr, &m_logical_device) != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create a logical device."
             );

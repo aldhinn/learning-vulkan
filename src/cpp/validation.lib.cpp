@@ -37,7 +37,8 @@ namespace vk::tut {
         populate_debug_utils_messenger_info(debug_messenger_info);
 
         if (create_debug_utils_messengerEXT(m_vulkan_instance,
-        &debug_messenger_info, nullptr, &m_debug_messenger) != VK_SUCCESS) {
+        &debug_messenger_info, nullptr, &m_debug_messenger)
+        != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create debug messenger."
             );

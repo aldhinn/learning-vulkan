@@ -221,7 +221,7 @@ namespace vk::tut {
 
         // Create the buffer.
         if(vkCreateBuffer(logical_device, &vertex_buffer_info,
-        nullptr, ptr_buffer) != VK_SUCCESS) {
+        nullptr, ptr_buffer) != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create buffer."
             );
