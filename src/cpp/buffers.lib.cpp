@@ -1,5 +1,6 @@
 #include "vk_tut/application.h"
 #include "vk_tut/logging.h"
+#include "vk_tut/uniform.h"
 
 #include <cstring>
 
@@ -115,6 +116,54 @@ namespace vk::tut {
 
 
         VK_TUT_LOG_DEBUG("Successfully created and allocated index buffer.");
+    }
+
+    void Application::create_uniform_buffers() {
+        // Create uniform buffers with the same size as the frame bufffers.
+        m_uniform_buffers.reserve(m_swapchain_frame_buffers.size());
+        m_uniform_buffer_memories.reserve(m_uniform_buffers.capacity());
+
+        for (int i = 0; i < m_uniform_buffers.capacity(); i++) {
+            // The uniform buffer to be created.
+            VkBuffer uniform_buffer;
+            // The uniform buffer memory to be allocated.
+            VkDeviceMemory uniform_buffer_memory;
+
+            create_and_allocate_buffer(
+                m_physical_device, m_logical_device,
+                static_cast<VkDeviceSize>(sizeof(Uniform)),
+                VkBufferUsageFlagBits::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+                VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                &uniform_buffer, &uniform_buffer_memory
+            );
+
+            m_uniform_buffers.emplace_back(::std::move(uniform_buffer));
+            m_uniform_buffer_memories.emplace_back(
+                ::std::move(uniform_buffer_memory)
+            );
+        }
+
+        VK_TUT_LOG_DEBUG("Successfully created and allocated uniform buffers.");
+    }
+
+    void Application::destroy_uniform_buffers() {
+        // Free uniform buffer memories.
+        for (const VkDeviceMemory& uniform_buffer_memory :
+        m_uniform_buffer_memories) {
+            vkFreeMemory(m_logical_device, uniform_buffer_memory, nullptr);
+        }
+        // Clear vector.
+        m_uniform_buffer_memories.clear();
+
+        // Destroy uniform buffer handles.
+        for (const VkBuffer& uniform_buffer : m_uniform_buffers) {
+            vkDestroyBuffer(m_logical_device, uniform_buffer, nullptr);
+        }
+        // Clear vector.
+        m_uniform_buffers.clear();
+
+        VK_TUT_LOG_DEBUG("Destroyed uniform buffers.");
     }
 
     void Application::destroy_index_buffer() {

@@ -85,8 +85,8 @@ namespace vk::tut {
         rasterization_info.rasterizerDiscardEnable = VK_FALSE;
         rasterization_info.polygonMode = VkPolygonMode::VK_POLYGON_MODE_FILL;
         rasterization_info.lineWidth = 1.0f;
-        rasterization_info.cullMode = VkCullModeFlagBits::VK_CULL_MODE_BACK_BIT;
-        rasterization_info.frontFace = VkFrontFace::VK_FRONT_FACE_CLOCKWISE;
+        rasterization_info.cullMode = VkCullModeFlagBits::VK_CULL_MODE_NONE;
+        rasterization_info.frontFace = VkFrontFace::VK_FRONT_FACE_MAX_ENUM;
         rasterization_info.depthBiasEnable = VK_FALSE;
 
         // Multisampling.
@@ -136,8 +136,8 @@ namespace vk::tut {
         VkPipelineLayoutCreateInfo graphics_pipeline_layout_info{};
         graphics_pipeline_layout_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        graphics_pipeline_layout_info.setLayoutCount = 0; // Optional
-        graphics_pipeline_layout_info.pSetLayouts = nullptr; // Optional
+        graphics_pipeline_layout_info.setLayoutCount = 1;
+        graphics_pipeline_layout_info.pSetLayouts = &m_descriptor_set_layout;
         graphics_pipeline_layout_info.pushConstantRangeCount = 0; // Optional
         graphics_pipeline_layout_info.pPushConstantRanges = nullptr; // Optional
 

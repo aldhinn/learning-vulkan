@@ -94,6 +94,8 @@ namespace vk::tut {
         VkShaderModule m_fragment_shader_module;
         // The render pass handle.
         VkRenderPass m_render_pass;
+        // The descriptor layout handle.
+        VkDescriptorSetLayout m_descriptor_set_layout;
         // The graphics pipeline layout.
         VkPipelineLayout m_graphics_pipeline_layout;
         // The handle to the graphics pipeline.
@@ -103,20 +105,9 @@ namespace vk::tut {
         // The command pool handle.
         VkCommandPool m_command_pool;
         // The value of the vertices of the object to be rendered.
-        ::std::vector<Vertex> m_vertices = {
-            {{0.0f, 0.0f, 0.0f},        {0.5f, 0.5f, 0.5f}},
-            {{0.5f, 0.0f, 0.0f},        {0.3f, 0.6f, 1.0f}},
-            {{0.43f, -0.25f, 0.0f},     {0.6f, 0.3f, 1.0f}},
-            {{0.25f, -0.43f, 0.0f},     {1.0f, 0.0f, 0.6f}},
-            {{0.0f, -0.5f, 0.0f},       {1.0f, 0.3f, 0.3f}},
-            {{-0.25f, -0.43f, 0.0f},    {0.6f, 0.6f, 0.0f}},
-            {{-0.43f, -0.25f, 0.0f},    {0.3f, 1.0f, 0.3f}},
-            {{-0.5f, 0.0f, 0.0f},       {0.0f, 1.0f, 0.6f}}
-        };
+        ::std::vector<Vertex> m_vertices;
         // The value of the index buffers of the object to be rendered.
-        ::std::vector<uint32_t> m_indices = {
-            2, 1, 0, 3, 2, 0, 4, 3, 0, 5, 4, 0, 6, 5, 0, 7, 6, 0
-        };
+        ::std::vector<uint32_t> m_indices;
         // The handle to the vertex buffer.
         VkBuffer m_vertex_buffer;
         // The handle to the memory of the vertex buffer in the GPU.
@@ -125,6 +116,14 @@ namespace vk::tut {
         VkBuffer m_index_buffer;
         // The handle to the memory of the vertex buffer in the GPU.
         VkDeviceMemory m_index_buffer_memory;
+        // The handles to the uniform buffers.
+        ::std::vector<VkBuffer> m_uniform_buffers;
+        // The handles to the uniform buffers memory.
+        ::std::vector<VkDeviceMemory> m_uniform_buffer_memories;
+        // The descriptor pool handle.
+        VkDescriptorPool m_descriptor_pool;
+        // The handles to the descriptor sets.
+        ::std::vector<VkDescriptorSet> m_descriptor_sets;
         // The index of the current frame being rendered.
         uint32_t m_current_frame_index = 0;
         // The command buffer handles.
@@ -149,11 +148,15 @@ namespace vk::tut {
         void create_swapchain();
         void create_swapchain_image_views();
         void create_render_pass();
+        void create_descriptor_set_layout();
         void create_graphics_pipeline();
         void create_swapchain_frame_buffers();
         void create_command_pool();
         void create_vertex_buffer();
         void create_index_buffer();
+        void create_uniform_buffers();
+        void create_descriptor_pool();
+        void create_descriptor_sets();
         void create_command_buffers();
         void create_sync_objects();
 
@@ -162,11 +165,14 @@ namespace vk::tut {
         // < ------------------- Vulkan cleanup functions ------------------ >
 
         void destroy_sync_objects();
+        void destroy_descriptor_pool();
+        void destroy_uniform_buffers();
         void destroy_index_buffer();
         void destroy_vertex_buffer();
         void destroy_command_pool();
         void destroy_swapchain_frame_buffers();
         void destroy_graphics_pipeline();
+        void destroy_descriptor_set_layout();
         void destroy_render_pass();
         void destroy_swapchain_image_views();
         void destroy_swapchain();
@@ -177,15 +183,17 @@ namespace vk::tut {
 
         // < ----------------- END Vulkan cleanup functions ---------------- >
 
-        // < ----------------------- Vulkan commands ----------------------- >
+        // < ---------------------------- Jobs ----------------------------- >
 
         void record_command_buffer(
             const uint32_t& image_index
         );
         void draw_frame();
         void recreate_swapchain();
+        void update_uniform_buffer();
+        void load_mesh();
 
-        // < --------------------- END Vulkan commands --------------------- >
+        // < -------------------------- END Jobs --------------------------- >
 
         // < --------------- Validation layer initializations -------------- >
 

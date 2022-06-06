@@ -1,7 +1,14 @@
 #include "vk_tut/application.h"
 #include "vk_tut/logging.h"
+#include "vk_tut/uniform.h"
 
 #include <limits>
+#include <chrono>
+#include <cstring>
+
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace vk::tut {
     // Default constructor.
@@ -19,11 +26,16 @@ namespace vk::tut {
         create_swapchain();
         create_swapchain_image_views();
         create_render_pass();
+        create_descriptor_set_layout();
         create_graphics_pipeline();
         create_swapchain_frame_buffers();
         create_command_pool();
+        load_mesh();
         create_vertex_buffer();
         create_index_buffer();
+        create_uniform_buffers();
+        create_descriptor_pool();
+        create_descriptor_sets();
         create_command_buffers();
         create_sync_objects();
 
@@ -35,11 +47,14 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("...Cleaning up application data...");
 
         destroy_sync_objects();
+        destroy_descriptor_pool();
+        destroy_uniform_buffers();
         destroy_index_buffer();
         destroy_vertex_buffer();
         destroy_command_pool();
         destroy_swapchain_frame_buffers();
         destroy_graphics_pipeline();
+        destroy_descriptor_set_layout();
         destroy_render_pass();
         destroy_swapchain_image_views();
         destroy_swapchain();
@@ -114,6 +129,8 @@ namespace vk::tut {
             VkPipelineStageFlagBits::VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT
         };
 
+        update_uniform_buffer();
+
         // Information to be submitted to the graphics queue.
         VkSubmitInfo submit_info{};
         submit_info.sType = VkStructureType::VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -165,5 +182,42 @@ namespace vk::tut {
         // number of valid framebuffers.
         m_current_frame_index = (m_current_frame_index + 1) %
             m_swapchain_frame_buffers.size();
+    }
+
+    void Application::update_uniform_buffer() {
+        static auto start_time = std::chrono::high_resolution_clock::now();
+        auto current_time = std::chrono::high_resolution_clock::now();
+        float time_passed = std::chrono::duration
+            <float, std::chrono::seconds::period>
+            (current_time - start_time).count();
+
+        Uniform uniform(
+            ::glm::rotate(
+                ::glm::mat4(1.0f),
+                time_passed * ::glm::radians(90.0f),
+                ::glm::vec3(0.0f, 0.0f, 1.0f)
+            ),
+            ::glm::lookAt(
+                ::glm::vec3(1.0f, 1.0f, 1.0f),
+                ::glm::vec3(0.0f, 0.0f, 0.0f),
+                ::glm::vec3(0.0f, 0.0f, 1.0f)
+            ),
+            ::glm::perspective(
+                ::glm::radians(45.0f),
+                m_swapchain_extent.width / (float) m_swapchain_extent.height,
+                0.1f, 10.0f
+            )
+        );
+
+        // Update the data of the uniform buffer.
+        void* data;
+        vkMapMemory(m_logical_device,
+            m_uniform_buffer_memories[m_current_frame_index],
+            0, sizeof(Uniform), 0, &data
+        );
+        memcpy(data, &uniform, sizeof(Uniform));
+        vkUnmapMemory(m_logical_device,
+            m_uniform_buffer_memories[m_current_frame_index]
+        );
     }
 }

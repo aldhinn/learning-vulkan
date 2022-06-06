@@ -130,6 +130,14 @@ namespace vk::tut {
             m_index_buffer, 0, VkIndexType::VK_INDEX_TYPE_UINT32
         );
 
+        // Bind the uniform buffers.
+        vkCmdBindDescriptorSets(
+            m_command_buffers[m_current_frame_index],
+            VkPipelineBindPoint::VK_PIPELINE_BIND_POINT_GRAPHICS,
+            m_graphics_pipeline_layout, 0, 1,
+            &m_descriptor_sets[m_current_frame_index], 0, nullptr
+        );
+
         // Draw the three vertices specified in our vertex shader.
         vkCmdDrawIndexed(m_command_buffers[m_current_frame_index],
             static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0);
