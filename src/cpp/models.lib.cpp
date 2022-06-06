@@ -15,30 +15,30 @@ namespace vk::tut {
         m_vertices.reserve(vertices_count);
         // Define the origin.
         m_vertices.emplace_back(
-            Vertex({0.00f, 0.00f, 0.00f}, {0.50f, 0.50f, 0.50f})
+            Vertex({0.00f, 0.00f, 0.00f}, {0.00f, 0.00f, 0.00f})
         );
         
         for (uint32_t i = 1; i < vertices_count; i++) {
             m_vertices.emplace_back(
                 Vertex(
                     {
-                        0.75f * ::glm::cos(i * ::glm::radians(360.0f) / vertices_count),
-                        0.75f * ::glm::sin(i * ::glm::radians(360.0f) / vertices_count),
+                        0.50f * ::glm::cos(i * ::glm::radians(360.0f) / vertices_count),
+                        0.50f * ::glm::sin(i * ::glm::radians(360.0f) / vertices_count),
                         0.00f
                     },
                     {
-                        0.5f * ::glm::cos(
+                        1.00f * ::glm::cos(
                             (i * ::glm::radians(360.0f) / vertices_count) +
                             ::glm::radians(0.0f)
-                        ) + 0.5f,
-                        0.5f * ::glm::cos(
+                        ) + 1.00f,
+                        1.00f * ::glm::cos(
                             (i * ::glm::radians(360.0f) / vertices_count) +
                             ::glm::radians(120.0f)
-                        ) + 0.5f,
-                        0.5f * ::glm::cos(
+                        ) + 1.00f,
+                        1.00f * ::glm::cos(
                             (i * ::glm::radians(360.0f) / vertices_count) +
                             ::glm::radians(240.0f)
-                        ) + 0.5f
+                        ) + 1.00f
                     }
                 )
             );
