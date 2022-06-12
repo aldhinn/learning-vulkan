@@ -6,6 +6,9 @@
 
 namespace vk::tut {
     void Application::create_vertex_buffer() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         VkDeviceSize buffer_size = static_cast<VkDeviceSize>(
             sizeof(Vertex) * m_vertices.size()
         );
@@ -29,9 +32,13 @@ namespace vk::tut {
 
         // Filling the buffer.
         void* data;
-        vkMapMemory(m_logical_device, staging_vertex_buffer_memory, 0,
+        result = vkMapMemory(
+            m_logical_device, staging_vertex_buffer_memory, 0,
             buffer_size, 0, &data
         );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to map memory.");
+        }
         memcpy(data, m_vertices.data(),
             static_cast<size_t>(buffer_size)
         );
@@ -62,6 +69,9 @@ namespace vk::tut {
     }
 
     void Application::create_index_buffer() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         VkDeviceSize buffer_size = static_cast<VkDeviceSize>(
             sizeof(Vertex) * m_indices.size()
         );
@@ -85,9 +95,13 @@ namespace vk::tut {
 
         // Filling the buffer.
         void* data;
-        vkMapMemory(m_logical_device, staging_vertex_buffer_memory, 0,
+        result = vkMapMemory(
+            m_logical_device, staging_vertex_buffer_memory, 0,
             buffer_size, 0, &data
         );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to map memory.");
+        }
         memcpy(data, m_indices.data(),
             static_cast<size_t>(buffer_size)
         );
@@ -210,6 +224,9 @@ namespace vk::tut {
         VkBuffer* ptr_buffer,
         VkDeviceMemory* ptr_buffer_memory
     ) {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Information about the vertex buffer.
         VkBufferCreateInfo vertex_buffer_info{};
         vertex_buffer_info.sType = VkStructureType
@@ -220,8 +237,10 @@ namespace vk::tut {
             ::VK_SHARING_MODE_EXCLUSIVE;
 
         // Create the buffer.
-        if(vkCreateBuffer(logical_device, &vertex_buffer_info,
-        nullptr, ptr_buffer) != VkResult::VK_SUCCESS) {
+        result = vkCreateBuffer(
+            logical_device, &vertex_buffer_info, nullptr, ptr_buffer
+        );
+        if(result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create buffer."
             );
@@ -243,15 +262,20 @@ namespace vk::tut {
         );
 
         // Allocate memory.
-        if (vkAllocateMemory(logical_device, &alloc_info,
-        nullptr, ptr_buffer_memory)) {
+        result = vkAllocateMemory(
+            logical_device, &alloc_info, nullptr, ptr_buffer_memory
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to allocate vertex buffer memory.");
         }
 
         // Bind the vertex buffer to the memory.
-        vkBindBufferMemory(logical_device, *ptr_buffer,
-            *ptr_buffer_memory, 0
+        result = vkBindBufferMemory(
+            logical_device, *ptr_buffer, *ptr_buffer_memory, 0
         );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to bind buffer memory.");
+        }
     }
 
     void copy_buffer(
@@ -262,18 +286,29 @@ namespace vk::tut {
         const VkBuffer& dest_buffer,
         const VkDeviceSize& buffer_size
     ) {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Information about the command to copy the src buffer
         // data to the dest buffer data.
         VkCommandBufferAllocateInfo command_buffer_info{};
-        command_buffer_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        command_buffer_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        command_buffer_info.sType = VkStructureType
+            ::VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        command_buffer_info.level = VkCommandBufferLevel
+            ::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         command_buffer_info.commandPool = command_pool;
         command_buffer_info.commandBufferCount = 1;
 
+        // The command buffer that will record our copy command.
         VkCommandBuffer command_buffer;
-        vkAllocateCommandBuffers(logical_device, &command_buffer_info,
-            &command_buffer);
+        result = vkAllocateCommandBuffers(
+            logical_device, &command_buffer_info, &command_buffer
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to allocate command buffer.");
+        }
         
+        // How the command buffer begins recording.
         VkCommandBufferBeginInfo begin_info{};
         begin_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -281,8 +316,12 @@ namespace vk::tut {
             ::VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
         // Begin recording copying.
-        vkBeginCommandBuffer(command_buffer, &begin_info);
-
+        result = vkBeginCommandBuffer(command_buffer, &begin_info);
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to begin recording command buffer.");
+        }
+        
+        // Information about how the copy happens.
         VkBufferCopy copy_region{};
         copy_region.srcOffset = 0; // Optional
         copy_region.dstOffset = 0; // Optional
@@ -291,7 +330,10 @@ namespace vk::tut {
             dest_buffer, 1, &copy_region);
         
         // End recording copying.
-        vkEndCommandBuffer(command_buffer);
+        result = vkEndCommandBuffer(command_buffer);
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to record command buffer.");
+        }
 
         // Submit the copying command.
         VkSubmitInfo submitInfo{};
@@ -299,9 +341,15 @@ namespace vk::tut {
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &command_buffer;
 
-        vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+        result = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to submit the copy command to the queue.");
+        }
         // Wait until the queue is done.
-        vkQueueWaitIdle(queue);
+        result = vkQueueWaitIdle(queue);
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to wait for queue.");
+        }
 
         // Free this command buffer as it will
         // no longer be used outside of this scope

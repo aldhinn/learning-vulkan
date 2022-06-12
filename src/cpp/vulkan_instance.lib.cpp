@@ -3,6 +3,9 @@
 
 namespace vk::tut {
     void Application::init_vulkan_instance() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
 #if defined(_VK_TUT_VALIDATION_LAYER_ENABLED_)
         if (!check_validation_layer_support()) {
             VK_TUT_LOG_ERROR(
@@ -77,8 +80,16 @@ namespace vk::tut {
 #endif
 
         // Create the Vulkan instance.
-        if (vkCreateInstance(&vulkan_instance_info, nullptr,
-        &m_vulkan_instance) != VkResult::VK_SUCCESS) {
+        result = vkCreateInstance(
+            &vulkan_instance_info, nullptr, &m_vulkan_instance
+        );
+        if (result == VkResult::VK_ERROR_INCOMPATIBLE_DRIVER) {
+            VK_TUT_LOG_ERROR(
+                "Your GPU driver does not support vulkan. "
+                "Please try to update your GPU driver to the latest version."
+            );
+        }
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to create vulkan instance.");
         }
 

@@ -3,6 +3,9 @@
 
 namespace vk::tut {
     void Application::create_render_pass() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Colour Attachment.
         VkAttachmentDescription colour_attachment{};
         colour_attachment.format = m_swapchain_image_format;
@@ -55,8 +58,10 @@ namespace vk::tut {
         render_pass_info.dependencyCount = 1;
         render_pass_info.pDependencies = &dependency;
 
-        if (vkCreateRenderPass(m_logical_device, &render_pass_info,
-        nullptr, &m_render_pass) != VkResult::VK_SUCCESS) {
+        result = vkCreateRenderPass(
+            m_logical_device, &render_pass_info, nullptr, &m_render_pass
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create render pass."
             );

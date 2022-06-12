@@ -82,41 +82,56 @@ namespace vk::tut {
             draw_frame();
         }
 
+        // Wait for the logical device's resource
+        // to be available before exiting the function.
         vkDeviceWaitIdle(m_logical_device);
     }
 
     void Application::draw_frame() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Wait until the previous frame has finished rendering in the GPU.
-        vkWaitForFences(m_logical_device, 1, &
-            m_in_flight_fences[m_current_frame_index], VK_TRUE,
-            ::std::numeric_limits<uint64_t>::max()
+        result = vkWaitForFences(
+            m_logical_device, 1, &m_in_flight_fences[m_current_frame_index],
+            VK_TRUE, ::std::numeric_limits<uint64_t>::max()
         );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to wait for fences.");
+        }
 
         // Acquire the next available image from the swapchain.
         uint32_t image_index = 0;
-        VkResult acquire_image_result = vkAcquireNextImageKHR(
+        result = vkAcquireNextImageKHR(
             m_logical_device, m_swapchain,
             ::std::numeric_limits<uint64_t>::max(),
             m_image_available_semaphores[m_current_frame_index],
             VK_NULL_HANDLE, &image_index
         );
-
-        if (acquire_image_result == VK_ERROR_OUT_OF_DATE_KHR) {
+        if (result == VkResult::VK_ERROR_OUT_OF_DATE_KHR) {
             recreate_swapchain();
             return;
         }
-        else if (acquire_image_result != VkResult::VK_SUCCESS &&
-        acquire_image_result != VK_SUBOPTIMAL_KHR) {
+        else if (result != VkResult::VK_SUCCESS &&
+        result != VkResult::VK_SUBOPTIMAL_KHR) {
             VK_TUT_LOG_ERROR("Failed to acquire swap chain image!");
         }
 
         // Reset the fence for drawing in the GPU.
-        vkResetFences(m_logical_device, 1,
+        result = vkResetFences(m_logical_device, 1,
             &m_in_flight_fences[m_current_frame_index]
         );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to reset fences.");
+        }
 
         // Reset the command buffer.
-        vkResetCommandBuffer(m_command_buffers[m_current_frame_index], 0);
+        result = vkResetCommandBuffer(
+            m_command_buffers[m_current_frame_index], 0
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to reset command buffer.");
+        }
 
         // Record the command buffer with the command that we want.
         // In our case, to draw our triangle.
@@ -146,8 +161,11 @@ namespace vk::tut {
 
         // Submit to the graphics queue.
         // Signals the m_in_flight_fence when graphics rendering is done.
-        if (vkQueueSubmit(m_graphics_queue, 1, &submit_info,
-        m_in_flight_fences[m_current_frame_index]) != VkResult::VK_SUCCESS) {
+        result = vkQueueSubmit(
+            m_graphics_queue, 1, &submit_info,
+            m_in_flight_fences[m_current_frame_index]
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to submit draw command buffer.");
         }
 
@@ -164,16 +182,15 @@ namespace vk::tut {
 
         // Waits for the graphics rendering before
         // presenting the image back to the swapchain.
-        VkResult present_result = vkQueuePresentKHR(
+        result = vkQueuePresentKHR(
             m_present_queue, &present_info
         );
-
-        if (present_result == VK_ERROR_OUT_OF_DATE_KHR ||
-        present_result == VK_SUBOPTIMAL_KHR) {
+        if (result == VkResult::VK_ERROR_OUT_OF_DATE_KHR ||
+        result == VkResult::VK_SUBOPTIMAL_KHR) {
             recreate_swapchain();
             return;
         }
-        else if (present_result != VkResult::VK_SUCCESS) {
+        else if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to present to the swapchain.");
         }
 
@@ -185,6 +202,9 @@ namespace vk::tut {
     }
 
     void Application::update_uniform_buffer() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         static auto start_time = std::chrono::high_resolution_clock::now();
         auto current_time = std::chrono::high_resolution_clock::now();
         float time_passed = std::chrono::duration
@@ -211,10 +231,13 @@ namespace vk::tut {
 
         // Update the data of the uniform buffer.
         void* data;
-        vkMapMemory(m_logical_device,
-            m_uniform_buffer_memories[m_current_frame_index],
+        result = vkMapMemory(
+            m_logical_device, m_uniform_buffer_memories[m_current_frame_index],
             0, sizeof(Uniform), 0, &data
         );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to map memory.");
+        }
         memcpy(data, &uniform, sizeof(Uniform));
         vkUnmapMemory(m_logical_device,
             m_uniform_buffer_memories[m_current_frame_index]

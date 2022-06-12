@@ -4,8 +4,12 @@
 
 namespace vk::tut {
     void Application::create_command_pool() {
-        QueueFamilyIndices indices =
-            find_family_indices(m_physical_device, m_surface);
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
+        QueueFamilyIndices indices = find_family_indices(
+            m_physical_device, m_surface
+        );
         
         // If somehow an unsuitable physical device got through.
         if (!indices.is_complete()) {
@@ -25,8 +29,10 @@ namespace vk::tut {
             ::VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
         
         // Create the command pool.
-        if (vkCreateCommandPool(m_logical_device, &command_pool_info,
-        nullptr, &m_command_pool) != VkResult::VK_SUCCESS) {
+        result = vkCreateCommandPool(
+            m_logical_device, &command_pool_info, nullptr, &m_command_pool
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create command pool."
             );
@@ -36,6 +42,9 @@ namespace vk::tut {
     }
 
     void Application::create_command_buffers() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Create a command buffer per frame buffer.
         m_command_buffers.reserve(m_swapchain_frame_buffers.size());
 
@@ -52,8 +61,10 @@ namespace vk::tut {
             VkCommandBuffer command_buffer;
 
             // Allocate command buffer.
-            if (vkAllocateCommandBuffers(m_logical_device,
-            &command_buffer_info, &command_buffer) != VkResult::VK_SUCCESS) {
+            result = vkAllocateCommandBuffers(
+                m_logical_device, &command_buffer_info, &command_buffer
+            );
+            if (result != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR(
                     "Failed to allocate command buffer."
                 );
@@ -76,6 +87,9 @@ namespace vk::tut {
     void Application::record_command_buffer(
         const uint32_t& image_index
     ) {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Information about how the command buffer begins recording.
         VkCommandBufferBeginInfo command_buffer_begin_info{};
         command_buffer_begin_info.sType = VkStructureType
@@ -83,8 +97,10 @@ namespace vk::tut {
         // Optional. Only relevant if we're using secondary command buffers.
         command_buffer_begin_info.pInheritanceInfo = nullptr;
         
-        if (vkBeginCommandBuffer(m_command_buffers[m_current_frame_index],
-        &command_buffer_begin_info) != VkResult::VK_SUCCESS) {
+        result = vkBeginCommandBuffer(
+            m_command_buffers[m_current_frame_index], &command_buffer_begin_info
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to begin recording command buffer."
             );
@@ -139,15 +155,17 @@ namespace vk::tut {
         );
 
         // Draw the three vertices specified in our vertex shader.
-        vkCmdDrawIndexed(m_command_buffers[m_current_frame_index],
-            static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(
+            m_command_buffers[m_current_frame_index],
+            static_cast<uint32_t>(m_indices.size()), 1, 0, 0, 0
+        );
 
         // End the render pass.
         vkCmdEndRenderPass(m_command_buffers[m_current_frame_index]);
 
         // End command buffer recording.
-        if (vkEndCommandBuffer(m_command_buffers[m_current_frame_index])
-        != VkResult::VK_SUCCESS) {
+        result = vkEndCommandBuffer(m_command_buffers[m_current_frame_index]);
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to record command buffer.");
         }
     }

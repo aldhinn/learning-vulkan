@@ -18,8 +18,13 @@ namespace vk::tut {
     }
 
     void Application::create_surface() {
-        if (glfwCreateWindowSurface(m_vulkan_instance,
-        m_ptr_window, nullptr, &m_surface) != VkResult::VK_SUCCESS) {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
+        result = glfwCreateWindowSurface(
+            m_vulkan_instance, m_ptr_window, nullptr, &m_surface
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to create a surface.");
         }
 
@@ -46,8 +51,8 @@ namespace vk::tut {
     ) {
         for (const VkSurfaceFormatKHR format : formats) {
             if (format.format == VkFormat::VK_FORMAT_B8G8R8_SRGB &&
-            format.colorSpace == VkColorSpaceKHR
-            ::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
+                format.colorSpace == VkColorSpaceKHR
+                ::VK_COLOR_SPACE_SRGB_NONLINEAR_KHR
             ) return format;
         }
 

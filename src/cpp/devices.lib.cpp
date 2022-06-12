@@ -7,16 +7,28 @@
 
 namespace vk::tut {
     void Application::select_physical_device() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Obtain the handles of the available physical devices.
         uint32_t available_physical_devices_count = 0;
-        vkEnumeratePhysicalDevices(m_vulkan_instance,
-            &available_physical_devices_count, nullptr);
+        result = vkEnumeratePhysicalDevices(
+            m_vulkan_instance, &available_physical_devices_count, nullptr
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to enumerate physical devices.");
+        }
         ::std::vector<VkPhysicalDevice> available_physical_devices(
             available_physical_devices_count
         );
-        vkEnumeratePhysicalDevices(m_vulkan_instance,
+        result = vkEnumeratePhysicalDevices(
+            m_vulkan_instance,
             &available_physical_devices_count,
-            available_physical_devices.data());
+            available_physical_devices.data()
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to enumerate physical devices.");
+        }
         
         // Select a suitable physical device.
         for (const VkPhysicalDevice& physical_device :
@@ -48,8 +60,12 @@ namespace vk::tut {
     }
 
     void Application::create_logical_device() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         QueueFamilyIndices indices = find_family_indices(
-            m_physical_device, m_surface);
+            m_physical_device, m_surface
+        );
         if (!indices.is_complete()) {
             // If an unsuitable device somehow got through.
             VK_TUT_LOG_ERROR("Unsuitable physical device.");
@@ -98,8 +114,10 @@ namespace vk::tut {
 #endif
         
         // Create the logical device.
-        if(vkCreateDevice(m_physical_device, &logical_device_info,
-        nullptr, &m_logical_device) != VkResult::VK_SUCCESS) {
+        result = vkCreateDevice(
+            m_physical_device, &logical_device_info, nullptr, &m_logical_device
+        );
+        if(result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create a logical device."
             );
@@ -129,21 +147,38 @@ namespace vk::tut {
         const VkPhysicalDevice& physical_device,
         const ::std::vector<const char*>& required_extensions
     ) {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Retrieve the extensions for the specified physical device.
         uint32_t physical_device_extensions_count = 0;
-        vkEnumerateDeviceExtensionProperties(physical_device,
-            nullptr, &physical_device_extensions_count, nullptr);
+        result = vkEnumerateDeviceExtensionProperties(
+            physical_device, nullptr,
+            &physical_device_extensions_count, nullptr
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR(
+                "Failed to enumerate physical device extension properties."
+            );
+        }
         ::std::vector<VkExtensionProperties> physical_device_extensions(
             physical_device_extensions_count
         );
-        vkEnumerateDeviceExtensionProperties(physical_device,
-            nullptr, &physical_device_extensions_count,
-            physical_device_extensions.data());
+        result = vkEnumerateDeviceExtensionProperties(
+            physical_device, nullptr, &physical_device_extensions_count,
+            physical_device_extensions.data()
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR(
+                "Failed to enumerate physical device extension properties."
+            );
+        }
         
         // The required_extensions_set will be empty
         // if they all exist in the physical_device_extensions
         ::std::set<::std::string> required_extensions_set(
-            required_extensions.begin(), required_extensions.end());
+            required_extensions.begin(), required_extensions.end()
+        );
         for (const VkExtensionProperties& extension_prop :
         physical_device_extensions) {
             required_extensions_set.erase(extension_prop.extensionName);

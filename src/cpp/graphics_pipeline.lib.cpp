@@ -5,11 +5,15 @@
 
 namespace vk::tut {
     void Application::create_graphics_pipeline() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         VkVertexInputBindingDescription binding_description =
             Vertex::get_binding_description();
         std::array<VkVertexInputAttributeDescription, 2>
         attribute_descriptions = Vertex::get_attribute_descriptions();
         
+        // Information about how the input buffer layout.
         VkPipelineVertexInputStateCreateInfo vertex_input_state_info{};
         vertex_input_state_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -142,9 +146,11 @@ namespace vk::tut {
         graphics_pipeline_layout_info.pPushConstantRanges = nullptr; // Optional
 
         // Create the pipeline layout.
-        if (vkCreatePipelineLayout(m_logical_device,
-        &graphics_pipeline_layout_info, nullptr, &m_graphics_pipeline_layout)
-        != VkResult::VK_SUCCESS) {
+        result = vkCreatePipelineLayout(
+            m_logical_device, &graphics_pipeline_layout_info,
+            nullptr, &m_graphics_pipeline_layout
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create graphics pipeline layout."
             );
@@ -166,9 +172,11 @@ namespace vk::tut {
         graphics_pipeline_info.renderPass = m_render_pass;
 
         // Create the graphics pipeline.
-        if (vkCreateGraphicsPipelines(m_logical_device, nullptr, 1,
-        &graphics_pipeline_info, nullptr, &m_graphics_pipeline)
-        != VkResult::VK_SUCCESS) {
+        result = vkCreateGraphicsPipelines(
+            m_logical_device, nullptr, 1, &graphics_pipeline_info,
+            nullptr, &m_graphics_pipeline
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create graphics pipeline."
             );

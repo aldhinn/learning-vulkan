@@ -8,6 +8,9 @@
 
 namespace vk::tut {
     void Application::create_swapchain() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         SwapChainSupportDetails swapchan_support = query_swapchain_support(
             m_physical_device, m_surface
         );
@@ -82,8 +85,10 @@ namespace vk::tut {
                 ::VK_SHARING_MODE_EXCLUSIVE;
         }
         
-        if (vkCreateSwapchainKHR(m_logical_device, &swapchain_info,
-        nullptr, &m_swapchain) != VkResult::VK_SUCCESS) {
+        result = vkCreateSwapchainKHR(
+            m_logical_device, &swapchain_info, nullptr, &m_swapchain
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create a swapchain."
             );
@@ -92,14 +97,26 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("Successfully created swapchain.");
 
         // Retrieve swapchain images.
-        vkGetSwapchainImagesKHR(m_logical_device, m_swapchain,
-            &image_count, nullptr);
+        result = vkGetSwapchainImagesKHR(
+            m_logical_device, m_swapchain, &image_count, nullptr
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to get swapchain images.");
+        }
         m_swapchain_images.resize(image_count);
-        vkGetSwapchainImagesKHR(m_logical_device, m_swapchain,
-            &image_count, m_swapchain_images.data());
+        result = vkGetSwapchainImagesKHR(
+            m_logical_device, m_swapchain,
+            &image_count, m_swapchain_images.data()
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to get swapchain images.");
+        }
     }
 
     void Application::create_swapchain_image_views() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         m_swapchain_image_views.reserve(m_swapchain_images.size());
 
         // Loop through the swapchain images.
@@ -129,8 +146,10 @@ namespace vk::tut {
             // The image view to be created.
             VkImageView image_view;
 
-            if (vkCreateImageView(m_logical_device, &image_view_info,
-            nullptr, &image_view) != VkResult::VK_SUCCESS) {
+            result = vkCreateImageView(
+                m_logical_device, &image_view_info, nullptr, &image_view
+            );
+            if (result != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR(
                     "Failed to create a swapchain image view."
                 );
@@ -143,6 +162,9 @@ namespace vk::tut {
     }
 
     void Application::create_swapchain_frame_buffers() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Match the size of the image view since each
         // framebuffer matches with an image view.
         m_swapchain_frame_buffers.reserve(m_swapchain_image_views.size());
@@ -167,9 +189,10 @@ namespace vk::tut {
             VkFramebuffer frame_buffer;
 
             // Create the framebuffer.
-            if (vkCreateFramebuffer(m_logical_device,
-            &frame_buffer_info, nullptr, &frame_buffer)
-            != VkResult::VK_SUCCESS) {
+            result = vkCreateFramebuffer(
+                m_logical_device, &frame_buffer_info, nullptr, &frame_buffer
+            );
+            if (result != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR(
                     "Failed to create framebuffer."
                 );

@@ -9,14 +9,26 @@
 
 namespace vk::tut {
     bool Application::check_validation_layer_support() {
-        uint32_t available_layers_properties_count;
-        vkEnumerateInstanceLayerProperties(
-            &available_layers_properties_count, nullptr);
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
 
+        uint32_t available_layers_properties_count;
+        result = vkEnumerateInstanceLayerProperties(
+            &available_layers_properties_count, nullptr
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to enumerate instance layer properties.");
+        }
         std::vector<VkLayerProperties> available_layers_properties(
-            available_layers_properties_count);
-        vkEnumerateInstanceLayerProperties(&available_layers_properties_count,
-            available_layers_properties.data());
+            available_layers_properties_count
+        );
+        result = vkEnumerateInstanceLayerProperties(
+            &available_layers_properties_count,
+            available_layers_properties.data()
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to enumerate instance layer properties.");
+        }
         
         for (const VkLayerProperties& layer_prop :
         available_layers_properties) {
@@ -33,12 +45,17 @@ namespace vk::tut {
     }
 
     void Application::setup_debug_messenger() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         VkDebugUtilsMessengerCreateInfoEXT debug_messenger_info{};
         populate_debug_utils_messenger_info(debug_messenger_info);
 
-        if (create_debug_utils_messengerEXT(m_vulkan_instance,
-        &debug_messenger_info, nullptr, &m_debug_messenger)
-        != VkResult::VK_SUCCESS) {
+        result = create_debug_utils_messengerEXT(
+            m_vulkan_instance, &debug_messenger_info,
+            nullptr, &m_debug_messenger
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create debug messenger."
             );
@@ -64,7 +81,7 @@ namespace vk::tut {
         }
         else {
             // Function is not present.
-            return VK_ERROR_EXTENSION_NOT_PRESENT;
+            return VkResult::VK_ERROR_EXTENSION_NOT_PRESENT;
         }
     }
 

@@ -37,6 +37,9 @@ namespace vk::tut {
         const VkDevice& logical_device,
         const ::std::string& shader_filepath
     ) {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Get the shader data.
         file_data_t shader_data = get_file_data(shader_filepath);
 
@@ -53,9 +56,10 @@ namespace vk::tut {
         // The shader module to be created.
         VkShaderModule shader_module;
 
-        if (vkCreateShaderModule(logical_device,
-        &shader_module_info, nullptr, &shader_module) 
-        != VkResult::VK_SUCCESS) {
+        result = vkCreateShaderModule(
+            logical_device, &shader_module_info, nullptr, &shader_module
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create shader module."
             );

@@ -4,6 +4,9 @@
 
 namespace vk::tut {
     void Application::create_descriptor_set_layout() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Information about descriptor set layout
         // binding for the vertex shader.
         VkDescriptorSetLayoutBinding layout_binding{};
@@ -22,9 +25,11 @@ namespace vk::tut {
         descriptor_set_layout_info.pBindings = &layout_binding;
         
         // Create the descriptor set layout.
-        if (vkCreateDescriptorSetLayout(m_logical_device,
-        &descriptor_set_layout_info, nullptr, &m_descriptor_set_layout
-        ) != VkResult::VK_SUCCESS) {
+        result = vkCreateDescriptorSetLayout(
+            m_logical_device, &descriptor_set_layout_info,
+            nullptr, &m_descriptor_set_layout
+        );
+        if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create descriptor set layout."
             );
@@ -34,6 +39,9 @@ namespace vk::tut {
     }
 
     void Application::create_descriptor_pool() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         VkDescriptorPoolSize descriptor_pool_size{};
         descriptor_pool_size.type = VkDescriptorType
             ::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -50,9 +58,11 @@ namespace vk::tut {
             m_swapchain_frame_buffers.size()
         );
         
-        if(vkCreateDescriptorPool(m_logical_device,
-        &descriptor_pool_info, nullptr, &m_descriptor_pool)
-        != VkResult::VK_SUCCESS) {
+        result = vkCreateDescriptorPool(
+            m_logical_device, &descriptor_pool_info,
+            nullptr, &m_descriptor_pool
+        );
+        if(result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
                 "Failed to create descriptor pool."
             );
@@ -62,6 +72,9 @@ namespace vk::tut {
     }
 
     void Application::create_descriptor_sets() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Create the same number of descriptor sets as the frame buffers.
         m_descriptor_sets.reserve(m_swapchain_frame_buffers.size());
 
@@ -77,9 +90,10 @@ namespace vk::tut {
             // Descriptor set to be allocated.
             VkDescriptorSet descriptor_set;
 
-            if(vkAllocateDescriptorSets(m_logical_device,
-            &descriptor_set_alloc_info, &descriptor_set)
-            != VkResult::VK_SUCCESS) {
+            result = vkAllocateDescriptorSets(
+                m_logical_device, &descriptor_set_alloc_info, &descriptor_set
+            );
+            if(result != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR(
                     "Failed to allocate descriptor set."
                 );

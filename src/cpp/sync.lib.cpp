@@ -3,6 +3,9 @@
 
 namespace vk::tut {
     void Application::create_sync_objects() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Create image available semaphore for each frame buffer.
         m_image_available_semaphores.reserve(m_swapchain_frame_buffers.size());
         for (uint32_t i = 0; i < m_image_available_semaphores.capacity();
@@ -15,9 +18,11 @@ namespace vk::tut {
             // The semaphore object to be created.
             VkSemaphore image_available_semaphore;
 
-            if (vkCreateSemaphore(m_logical_device,
-            &image_available_semaphore_info, nullptr,
-            &image_available_semaphore) != VkResult::VK_SUCCESS) {
+            result = vkCreateSemaphore(
+                m_logical_device, &image_available_semaphore_info,
+                nullptr, &image_available_semaphore
+            );
+            if (result != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR(
                     "Failed to create image_available_semaphore."
                 );
@@ -40,9 +45,11 @@ namespace vk::tut {
             // The semaphore object to be created.
             VkSemaphore render_finished_semaphore;
 
-            if (vkCreateSemaphore(m_logical_device,
-            &render_finished_semaphore_info, nullptr,
-            &render_finished_semaphore) != VkResult::VK_SUCCESS) {
+            result = vkCreateSemaphore(
+                m_logical_device, &render_finished_semaphore_info,
+                nullptr, &render_finished_semaphore
+            );
+            if (result != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR("Failed to create render_finished_semaphore.");
             }
 
@@ -64,8 +71,11 @@ namespace vk::tut {
             // The fence to be created.
             VkFence in_flight_fence;
 
-            if (vkCreateFence(m_logical_device, &in_flight_fence_info,
-            nullptr, &in_flight_fence) != VkResult::VK_SUCCESS) {
+            result = vkCreateFence(
+                m_logical_device, &in_flight_fence_info,
+                nullptr, &in_flight_fence
+            );
+            if (result != VkResult::VK_SUCCESS) {
                 VK_TUT_LOG_ERROR("Failed to create in_flight_fence.");
             }
 
