@@ -108,18 +108,15 @@ namespace vk::tut {
         ::std::vector<Vertex> m_vertices;
         // The value of the index buffers of the object to be rendered.
         ::std::vector<uint32_t> m_indices;
-        // The handle to the vertex buffer.
-        VkBuffer m_vertex_buffer;
-        // The handle to the memory of the vertex buffer in the GPU.
-        VkDeviceMemory m_vertex_buffer_memory;
-        // The handle to the index buffer.
-        VkBuffer m_index_buffer;
-        // The handle to the memory of the vertex buffer in the GPU.
-        VkDeviceMemory m_index_buffer_memory;
-        // The handles to the uniform buffers.
-        ::std::vector<VkBuffer> m_uniform_buffers;
-        // The handles to the uniform buffers memory.
-        ::std::vector<VkDeviceMemory> m_uniform_buffer_memories;
+        // The handle to the buffer containing vertex and index data
+        // of all meshes loaded to be rendered..
+        VkBuffer m_mesh_buffer;
+        // The handle to the memory of the mesh buffer in the GPU.
+        VkDeviceMemory m_mesh_buffer_memory;
+        // The handle to the buffer containing uniform data.
+        VkBuffer m_uniform_buffer;
+        // The handle to the memory of the uniform buffer in the GPU.
+        VkDeviceMemory m_uniform_buffer_memory;
         // The descriptor pool handle.
         VkDescriptorPool m_descriptor_pool;
         // The handles to the descriptor sets.
@@ -152,9 +149,8 @@ namespace vk::tut {
         void create_graphics_pipeline();
         void create_swapchain_frame_buffers();
         void create_command_pool();
-        void create_vertex_buffer();
-        void create_index_buffer();
-        void create_uniform_buffers();
+        void create_mesh_buffer();
+        void create_uniform_buffer();
         void create_descriptor_pool();
         void create_descriptor_sets();
         void create_command_buffers();
@@ -166,9 +162,8 @@ namespace vk::tut {
 
         void destroy_sync_objects();
         void destroy_descriptor_pool();
-        void destroy_uniform_buffers();
-        void destroy_index_buffer();
-        void destroy_vertex_buffer();
+        void destroy_uniform_buffer();
+        void destroy_mesh_buffer();
         void destroy_command_pool();
         void destroy_swapchain_frame_buffers();
         void destroy_graphics_pipeline();
@@ -191,7 +186,7 @@ namespace vk::tut {
         void draw_frame();
         void recreate_swapchain();
         void update_uniform_buffer();
-        void load_mesh();
+        void load_initial_mesh();
 
         // < -------------------------- END Jobs --------------------------- >
 

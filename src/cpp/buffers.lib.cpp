@@ -5,193 +5,109 @@
 #include <cstring>
 
 namespace vk::tut {
-    void Application::create_vertex_buffer() {
+    void Application::create_mesh_buffer() {
         // The variable that stores the result of any vulkan function called.
         VkResult result;
 
-        VkDeviceSize buffer_size = static_cast<VkDeviceSize>(
-            sizeof(Vertex) * m_vertices.size()
+        VkDeviceSize objects_buffer_size = static_cast<VkDeviceSize>(
+            sizeof(Vertex) * m_vertices.size() +
+            sizeof(uint32_t) * m_indices.size()
         );
 
-        // The CPU accessible vertex buffer.
-        VkBuffer staging_vertex_buffer;
-        // The CPU accessible vertex buffer memory.
-        VkDeviceMemory staging_vertex_buffer_memory;
+        // The CPU accessible objects buffer.
+        VkBuffer staging_objects_buffer;
+        // The CPU accessible objects buffer memory.
+        VkDeviceMemory staging_objects_buffer_memory;
 
         // Create and allocate the staging buffer.
         create_and_allocate_buffer(
             m_physical_device,
             m_logical_device,
-            buffer_size,
+            objects_buffer_size,
             VkBufferUsageFlagBits::VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
             VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            &staging_vertex_buffer,
-            &staging_vertex_buffer_memory
+            &staging_objects_buffer,
+            &staging_objects_buffer_memory
         );
 
         // Filling the buffer.
         void* data;
         result = vkMapMemory(
-            m_logical_device, staging_vertex_buffer_memory, 0,
-            buffer_size, 0, &data
+            m_logical_device, staging_objects_buffer_memory, 0,
+            objects_buffer_size, 0, &data
         );
         if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to map memory.");
         }
-        memcpy(data, m_vertices.data(),
-            static_cast<size_t>(buffer_size)
+        // Fill in with the vertices data.
+        memcpy(
+            data,
+            m_vertices.data(),
+            static_cast<size_t>(sizeof(Vertex) * m_vertices.size())
         );
-        vkUnmapMemory(m_logical_device, staging_vertex_buffer_memory);
+        // Append the data buffer with the indices data.
+        memcpy(
+            data + static_cast<size_t>(sizeof(Vertex) * m_vertices.size()),
+            m_indices.data(),
+            static_cast<size_t>(sizeof(uint32_t) * m_indices.size())
+        );
+        vkUnmapMemory(m_logical_device, staging_objects_buffer_memory);
 
         // Create the actual vertex buffer.
         create_and_allocate_buffer(
             m_physical_device,
             m_logical_device,
-            buffer_size,
+            objects_buffer_size,
             VkBufferUsageFlagBits::VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-            VkBufferUsageFlagBits::VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-            VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-            &m_vertex_buffer,
-            &m_vertex_buffer_memory
-        );
-
-        // Copy the staging buffer to the vertex buffer.
-        copy_buffer(
-            m_logical_device, m_command_pool, m_graphics_queue,
-            staging_vertex_buffer, m_vertex_buffer, buffer_size
-        );
-
-        vkFreeMemory(m_logical_device, staging_vertex_buffer_memory, nullptr);
-        vkDestroyBuffer(m_logical_device, staging_vertex_buffer, nullptr);
-
-        VK_TUT_LOG_DEBUG("Successfully created and allocated vertex buffer.");
-    }
-
-    void Application::create_index_buffer() {
-        // The variable that stores the result of any vulkan function called.
-        VkResult result;
-
-        VkDeviceSize buffer_size = static_cast<VkDeviceSize>(
-            sizeof(Vertex) * m_indices.size()
-        );
-
-        // The CPU accessible vertex buffer.
-        VkBuffer staging_vertex_buffer;
-        // The CPU accessible vertex buffer memory.
-        VkDeviceMemory staging_vertex_buffer_memory;
-
-        // Create and allocate the staging buffer.
-        create_and_allocate_buffer(
-            m_physical_device,
-            m_logical_device,
-            buffer_size,
-            VkBufferUsageFlagBits::VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-            VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            &staging_vertex_buffer,
-            &staging_vertex_buffer_memory
-        );
-
-        // Filling the buffer.
-        void* data;
-        result = vkMapMemory(
-            m_logical_device, staging_vertex_buffer_memory, 0,
-            buffer_size, 0, &data
-        );
-        if (result != VkResult::VK_SUCCESS) {
-            VK_TUT_LOG_ERROR("Failed to map memory.");
-        }
-        memcpy(data, m_indices.data(),
-            static_cast<size_t>(buffer_size)
-        );
-        vkUnmapMemory(m_logical_device, staging_vertex_buffer_memory);
-
-        // Create the actual index buffer.
-        create_and_allocate_buffer(
-            m_physical_device,
-            m_logical_device,
-            buffer_size,
-            VkBufferUsageFlagBits::VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+            VkBufferUsageFlagBits::VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
             VkBufferUsageFlagBits::VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
             VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-            &m_index_buffer,
-            &m_index_buffer_memory
+            &m_mesh_buffer,
+            &m_mesh_buffer_memory
         );
 
         // Copy the staging buffer to the vertex buffer.
         copy_buffer(
             m_logical_device, m_command_pool, m_graphics_queue,
-            staging_vertex_buffer, m_index_buffer, buffer_size
+            staging_objects_buffer, m_mesh_buffer, objects_buffer_size
         );
 
-        vkFreeMemory(m_logical_device, staging_vertex_buffer_memory, nullptr);
-        vkDestroyBuffer(m_logical_device, staging_vertex_buffer, nullptr);
+        vkFreeMemory(m_logical_device, staging_objects_buffer_memory, nullptr);
+        vkDestroyBuffer(m_logical_device, staging_objects_buffer, nullptr);
 
-
-        VK_TUT_LOG_DEBUG("Successfully created and allocated index buffer.");
+        VK_TUT_LOG_DEBUG("Successfully created and allocated objects buffer.");
     }
 
-    void Application::create_uniform_buffers() {
-        // Create uniform buffers with the same size as the frame bufffers.
-        m_uniform_buffers.reserve(m_swapchain_frame_buffers.size());
-        m_uniform_buffer_memories.reserve(m_uniform_buffers.capacity());
-
-        for (int i = 0; i < m_uniform_buffers.capacity(); i++) {
-            // The uniform buffer to be created.
-            VkBuffer uniform_buffer;
-            // The uniform buffer memory to be allocated.
-            VkDeviceMemory uniform_buffer_memory;
-
-            create_and_allocate_buffer(
-                m_physical_device, m_logical_device,
-                static_cast<VkDeviceSize>(sizeof(Uniform)),
-                VkBufferUsageFlagBits::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-                VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                &uniform_buffer, &uniform_buffer_memory
-            );
-
-            m_uniform_buffers.emplace_back(::std::move(uniform_buffer));
-            m_uniform_buffer_memories.emplace_back(
-                ::std::move(uniform_buffer_memory)
-            );
-        }
+    void Application::create_uniform_buffer() {
+        // Allocate a uniform buffer with the size of Uniform times
+        // the number of swapchain frame buffers.
+        create_and_allocate_buffer(
+            m_physical_device, m_logical_device,
+            static_cast<VkDeviceSize>(
+                sizeof(Uniform) * m_swapchain_frame_buffers.size()
+            ),
+            VkBufferUsageFlagBits::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+            VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+            &m_uniform_buffer, &m_uniform_buffer_memory
+        );
 
         VK_TUT_LOG_DEBUG("Successfully created and allocated uniform buffers.");
     }
 
-    void Application::destroy_uniform_buffers() {
-        // Free uniform buffer memories.
-        for (const VkDeviceMemory& uniform_buffer_memory :
-        m_uniform_buffer_memories) {
-            vkFreeMemory(m_logical_device, uniform_buffer_memory, nullptr);
-        }
-        // Clear vector.
-        m_uniform_buffer_memories.clear();
-
-        // Destroy uniform buffer handles.
-        for (const VkBuffer& uniform_buffer : m_uniform_buffers) {
-            vkDestroyBuffer(m_logical_device, uniform_buffer, nullptr);
-        }
-        // Clear vector.
-        m_uniform_buffers.clear();
+    void Application::destroy_uniform_buffer() {
+        vkFreeMemory(m_logical_device, m_uniform_buffer_memory, nullptr);
+        vkDestroyBuffer(m_logical_device, m_uniform_buffer, nullptr);
 
         VK_TUT_LOG_DEBUG("Destroyed uniform buffers.");
     }
 
-    void Application::destroy_index_buffer() {
-        vkFreeMemory(m_logical_device, m_index_buffer_memory, nullptr);
-        vkDestroyBuffer(m_logical_device, m_index_buffer, nullptr);
+    void Application::destroy_mesh_buffer() {
+        vkFreeMemory(m_logical_device, m_mesh_buffer_memory, nullptr);
+        vkDestroyBuffer(m_logical_device, m_mesh_buffer, nullptr);
 
         VK_TUT_LOG_DEBUG("Destroyed index buffer.");
-    }
-
-    void Application::destroy_vertex_buffer() {
-        vkFreeMemory(m_logical_device, m_vertex_buffer_memory, nullptr);
-        vkDestroyBuffer(m_logical_device, m_vertex_buffer, nullptr);
-
-        VK_TUT_LOG_DEBUG("Destroyed vertex buffer.");
     }
 
     uint32_t find_memory_requirements(
@@ -291,18 +207,18 @@ namespace vk::tut {
 
         // Information about the command to copy the src buffer
         // data to the dest buffer data.
-        VkCommandBufferAllocateInfo command_buffer_info{};
-        command_buffer_info.sType = VkStructureType
+        VkCommandBufferAllocateInfo copy_command_buffer_info{};
+        copy_command_buffer_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        command_buffer_info.level = VkCommandBufferLevel
+        copy_command_buffer_info.level = VkCommandBufferLevel
             ::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        command_buffer_info.commandPool = command_pool;
-        command_buffer_info.commandBufferCount = 1;
+        copy_command_buffer_info.commandPool = command_pool;
+        copy_command_buffer_info.commandBufferCount = 1;
 
         // The command buffer that will record our copy command.
-        VkCommandBuffer command_buffer;
+        VkCommandBuffer copy_command_buffer;
         result = vkAllocateCommandBuffers(
-            logical_device, &command_buffer_info, &command_buffer
+            logical_device, &copy_command_buffer_info, &copy_command_buffer
         );
         if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to allocate command buffer.");
@@ -316,7 +232,7 @@ namespace vk::tut {
             ::VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
         // Begin recording copying.
-        result = vkBeginCommandBuffer(command_buffer, &begin_info);
+        result = vkBeginCommandBuffer(copy_command_buffer, &begin_info);
         if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to begin recording command buffer.");
         }
@@ -326,11 +242,13 @@ namespace vk::tut {
         copy_region.srcOffset = 0; // Optional
         copy_region.dstOffset = 0; // Optional
         copy_region.size = buffer_size;
-        vkCmdCopyBuffer(command_buffer, src_buffer,
-            dest_buffer, 1, &copy_region);
+        vkCmdCopyBuffer(
+            copy_command_buffer, src_buffer,
+            dest_buffer, 1, &copy_region
+        );
         
         // End recording copying.
-        result = vkEndCommandBuffer(command_buffer);
+        result = vkEndCommandBuffer(copy_command_buffer);
         if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to record command buffer.");
         }
@@ -339,7 +257,7 @@ namespace vk::tut {
         VkSubmitInfo submitInfo{};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &command_buffer;
+        submitInfo.pCommandBuffers = &copy_command_buffer;
 
         result = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
         if (result != VkResult::VK_SUCCESS) {
@@ -353,6 +271,8 @@ namespace vk::tut {
 
         // Free this command buffer as it will
         // no longer be used outside of this scope
-        vkFreeCommandBuffers(logical_device, command_pool, 1, &command_buffer);
+        vkFreeCommandBuffers(
+            logical_device, command_pool, 1, &copy_command_buffer
+        );
     }
 }

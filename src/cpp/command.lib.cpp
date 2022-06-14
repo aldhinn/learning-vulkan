@@ -138,12 +138,17 @@ namespace vk::tut {
         // Bind the vertex buffers.
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(m_command_buffers[m_current_frame_index],
-            0, 1, &m_vertex_buffer, offsets
+            0, 1, &m_mesh_buffer, offsets
         );
 
-        // Bind the index buffers.
+        // The data of the index buffer follows after the vertex array.
+        VkDeviceSize index_data_offset = static_cast<VkDeviceSize>(
+            sizeof(Vertex) * m_vertices.size()
+        );
+        // Bind the indices data.
         vkCmdBindIndexBuffer(m_command_buffers[m_current_frame_index],
-            m_index_buffer, 0, VkIndexType::VK_INDEX_TYPE_UINT32
+            m_mesh_buffer, index_data_offset,
+            VkIndexType::VK_INDEX_TYPE_UINT32
         );
 
         // Bind the uniform buffers.

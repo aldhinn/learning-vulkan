@@ -106,9 +106,13 @@ namespace vk::tut {
         for (int i = 0; i < m_descriptor_sets.size(); i++) {
             // Provides handle to the corresponding uniform buffer.
             VkDescriptorBufferInfo descriptor_buffer_info{};
-            descriptor_buffer_info.offset = 0;
-            descriptor_buffer_info.buffer = m_uniform_buffers[i];
-            descriptor_buffer_info.range = sizeof(Uniform);
+            descriptor_buffer_info.offset = static_cast<VkDeviceSize>(
+                i * sizeof(Uniform)
+            );
+            descriptor_buffer_info.buffer = m_uniform_buffer;
+            descriptor_buffer_info.range = static_cast<VkDeviceSize>(
+                sizeof(Uniform) * m_descriptor_sets.size()
+            );
 
             VkWriteDescriptorSet descriptor_write{};
             descriptor_write.sType = VkStructureType
@@ -119,8 +123,10 @@ namespace vk::tut {
             descriptor_write.descriptorCount = 1;
             descriptor_write.pBufferInfo = &descriptor_buffer_info;
 
-            vkUpdateDescriptorSets(m_logical_device, 1,
-            &descriptor_write, 0, nullptr);
+            vkUpdateDescriptorSets(
+                m_logical_device, 1,
+                &descriptor_write, 0, nullptr
+            );
         }
 
         VK_TUT_LOG_DEBUG("Successfully created and allocated descriptor sets.");

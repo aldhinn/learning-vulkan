@@ -30,10 +30,9 @@ namespace vk::tut {
         create_graphics_pipeline();
         create_swapchain_frame_buffers();
         create_command_pool();
-        load_mesh();
-        create_vertex_buffer();
-        create_index_buffer();
-        create_uniform_buffers();
+        load_initial_mesh();
+        create_mesh_buffer();
+        create_uniform_buffer();
         create_descriptor_pool();
         create_descriptor_sets();
         create_command_buffers();
@@ -48,9 +47,8 @@ namespace vk::tut {
 
         destroy_sync_objects();
         destroy_descriptor_pool();
-        destroy_uniform_buffers();
-        destroy_index_buffer();
-        destroy_vertex_buffer();
+        destroy_uniform_buffer();
+        destroy_mesh_buffer();
         destroy_command_pool();
         destroy_swapchain_frame_buffers();
         destroy_graphics_pipeline();
@@ -232,15 +230,15 @@ namespace vk::tut {
         // Update the data of the uniform buffer.
         void* data;
         result = vkMapMemory(
-            m_logical_device, m_uniform_buffer_memories[m_current_frame_index],
-            0, sizeof(Uniform), 0, &data
+            m_logical_device, m_uniform_buffer_memory,
+            m_current_frame_index * sizeof(Uniform), sizeof(Uniform), 0, &data
         );
         if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to map memory.");
         }
         memcpy(data, &uniform, sizeof(Uniform));
         vkUnmapMemory(m_logical_device,
-            m_uniform_buffer_memories[m_current_frame_index]
+            m_uniform_buffer_memory
         );
     }
 }

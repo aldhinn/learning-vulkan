@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 
 namespace vk::tut {
-    void Application::load_mesh() {
+    void Application::load_initial_mesh() {
         // For now, simply create colour wheel circle.
 
         // Define the number of triangles to be drawn.
