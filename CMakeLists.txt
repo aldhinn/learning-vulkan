@@ -35,6 +35,9 @@ if (NOT glm_FOUND)
     set(GLM_TEST_ENABLE OFF)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm/)
 endif()
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/stb/
+)
 
 # < --------------------------- END Dependencies -------------------------- >
 
