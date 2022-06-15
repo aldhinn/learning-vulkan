@@ -72,6 +72,8 @@ namespace vk::tut {
     void Application::run() {
         VK_TUT_LOG_DEBUG("Running the application.");
 
+        load_square_mesh();
+
         // The main application loop.
         // This keeps running until a close event is received by
         // the GLFW API.

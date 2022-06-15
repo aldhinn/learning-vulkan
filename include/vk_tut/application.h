@@ -187,6 +187,7 @@ namespace vk::tut {
         void recreate_swapchain();
         void update_uniform_buffer();
         void load_initial_mesh();
+        void load_square_mesh();
 
         // < -------------------------- END Jobs --------------------------- >
 

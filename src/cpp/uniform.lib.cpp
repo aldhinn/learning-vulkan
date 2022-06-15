@@ -8,7 +8,9 @@ namespace vk::tut {
         const ::glm::mat4& model,
         const ::glm::mat4& view,
         const ::glm::mat4& projection
-    ) : m_model(model), m_view(view), m_projection(projection) {}
+    ) : m_model(model), m_view(view), m_projection(projection) {
+        m_projection[1][1] *= -1;
+    }
         
     // Move initializer list constructor.
     Uniform::Uniform(
@@ -16,18 +18,24 @@ namespace vk::tut {
         ::glm::mat4&& view,
         ::glm::mat4&& projection
     ) : m_model(::std::move(model)), m_view(::std::move(view)),
-    m_projection(::std::move(projection)) {}
+    m_projection(::std::move(projection)) {
+        m_projection[1][1] *= -1;
+    }
 
     // Copy constructor.
     Uniform::Uniform(const Uniform& from) :
     m_model(from.m_model), m_view(from.m_view),
-    m_projection(from.m_projection) {}
+    m_projection(from.m_projection) {
+        m_projection[1][1] *= -1;
+    }
 
     // Move constuctor.
     Uniform::Uniform(Uniform&& from) :
     m_model(::std::move(from.m_model)),
     m_view(::std::move(from.m_view)),
-    m_projection(::std::move(from.m_projection)) {}
+    m_projection(::std::move(from.m_projection)) {
+        m_projection[1][1] *= -1;
+    }
 
     // Copy re-assignment.
     Uniform& Uniform::operator= (const Uniform& from) {
@@ -85,10 +93,12 @@ namespace vk::tut {
     // Copy setter for m_projection.
     void Uniform::set_projection(const ::glm::mat4& projection) {
         m_projection = projection;
+        m_projection[1][1] *= -1;
     }
 
     // Move setter for m_projection.
     void Uniform::set_projection(::glm::mat4&& projection) {
         m_projection = ::std::move(projection);
+        m_projection[1][1] *= -1;
     }
 }
