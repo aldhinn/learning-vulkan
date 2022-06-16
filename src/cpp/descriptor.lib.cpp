@@ -106,12 +106,10 @@ namespace vk::tut {
         for (int i = 0; i < m_descriptor_sets.size(); i++) {
             // Provides handle to the corresponding uniform buffer.
             VkDescriptorBufferInfo descriptor_buffer_info{};
-            descriptor_buffer_info.offset = static_cast<VkDeviceSize>(
-                i * sizeof(Uniform)
-            );
+            descriptor_buffer_info.offset = 0;
             descriptor_buffer_info.buffer = m_uniform_buffer;
             descriptor_buffer_info.range = static_cast<VkDeviceSize>(
-                sizeof(Uniform) * m_descriptor_sets.size()
+                sizeof(Uniform)
             );
 
             VkWriteDescriptorSet descriptor_write{};

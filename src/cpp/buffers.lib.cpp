@@ -48,7 +48,10 @@ namespace vk::tut {
         );
         // Append the data buffer with the indices data.
         memcpy(
-            data + static_cast<size_t>(sizeof(Vertex) * m_vertices.size()),
+            static_cast<void*>(
+                static_cast<char*>(data) +
+                static_cast<uint32_t>(sizeof(Vertex) * m_vertices.size())
+            ),
             m_indices.data(),
             static_cast<size_t>(sizeof(uint32_t) * m_indices.size())
         );
@@ -85,7 +88,7 @@ namespace vk::tut {
         create_and_allocate_buffer(
             m_physical_device, m_logical_device,
             static_cast<VkDeviceSize>(
-                sizeof(Uniform) * m_swapchain_frame_buffers.size()
+                sizeof(Uniform)
             ),
             VkBufferUsageFlagBits::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
@@ -93,21 +96,21 @@ namespace vk::tut {
             &m_uniform_buffer, &m_uniform_buffer_memory
         );
 
-        VK_TUT_LOG_DEBUG("Successfully created and allocated uniform buffers.");
+        VK_TUT_LOG_DEBUG("Successfully created and allocated uniform buffer.");
     }
 
     void Application::destroy_uniform_buffer() {
         vkFreeMemory(m_logical_device, m_uniform_buffer_memory, nullptr);
         vkDestroyBuffer(m_logical_device, m_uniform_buffer, nullptr);
 
-        VK_TUT_LOG_DEBUG("Destroyed uniform buffers.");
+        VK_TUT_LOG_DEBUG("Destroyed uniform buffer.");
     }
 
     void Application::destroy_mesh_buffer() {
         vkFreeMemory(m_logical_device, m_mesh_buffer_memory, nullptr);
         vkDestroyBuffer(m_logical_device, m_mesh_buffer, nullptr);
 
-        VK_TUT_LOG_DEBUG("Destroyed index buffer.");
+        VK_TUT_LOG_DEBUG("Destroyed mesh buffer.");
     }
 
     uint32_t find_memory_requirements(
@@ -143,18 +146,18 @@ namespace vk::tut {
         // The variable that stores the result of any vulkan function called.
         VkResult result;
 
-        // Information about the vertex buffer.
-        VkBufferCreateInfo vertex_buffer_info{};
-        vertex_buffer_info.sType = VkStructureType
+        // Information about the buffer to be created.
+        VkBufferCreateInfo buffer_info{};
+        buffer_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        vertex_buffer_info.size = device_size;
-        vertex_buffer_info.usage = usage_flags;
-        vertex_buffer_info.sharingMode = VkSharingMode
+        buffer_info.size = device_size;
+        buffer_info.usage = usage_flags;
+        buffer_info.sharingMode = VkSharingMode
             ::VK_SHARING_MODE_EXCLUSIVE;
 
         // Create the buffer.
         result = vkCreateBuffer(
-            logical_device, &vertex_buffer_info, nullptr, ptr_buffer
+            logical_device, &buffer_info, nullptr, ptr_buffer
         );
         if(result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR(
@@ -182,7 +185,7 @@ namespace vk::tut {
             logical_device, &alloc_info, nullptr, ptr_buffer_memory
         );
         if (result != VkResult::VK_SUCCESS) {
-            VK_TUT_LOG_ERROR("Failed to allocate vertex buffer memory.");
+            VK_TUT_LOG_ERROR("Failed to allocate buffer memory.");
         }
 
         // Bind the vertex buffer to the memory.

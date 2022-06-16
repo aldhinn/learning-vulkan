@@ -233,7 +233,7 @@ namespace vk::tut {
         void* data;
         result = vkMapMemory(
             m_logical_device, m_uniform_buffer_memory,
-            m_current_frame_index * sizeof(Uniform), sizeof(Uniform), 0, &data
+            0, sizeof(Uniform), 0, &data
         );
         if (result != VkResult::VK_SUCCESS) {
             VK_TUT_LOG_ERROR("Failed to map memory.");
