@@ -104,6 +104,14 @@ namespace vk::tut {
         ::std::vector<VkFramebuffer> m_swapchain_frame_buffers;
         // The command pool handle.
         VkCommandPool m_command_pool;
+        // The handle to the texture image.
+        VkImage m_texture_image;
+        // The image view of the texture image.
+        VkImageView m_texture_image_view;
+        // The sample of the texture image.
+        VkSampler m_texture_sampler;
+        // The handle to the texture image device memory.
+        VkDeviceMemory m_texture_image_memory;
         // The value of the vertices of the object to be rendered.
         ::std::vector<Vertex> m_vertices;
         // The value of the index buffers of the object to be rendered.
@@ -149,6 +157,9 @@ namespace vk::tut {
         void create_graphics_pipeline();
         void create_swapchain_frame_buffers();
         void create_command_pool();
+        void create_texture_image();
+        void create_texture_image_view();
+        void create_texture_sampler();
         void create_mesh_buffer();
         void create_uniform_buffer();
         void create_descriptor_pool();
@@ -164,6 +175,9 @@ namespace vk::tut {
         void destroy_descriptor_pool();
         void destroy_uniform_buffer();
         void destroy_mesh_buffer();
+        void destroy_texture_sampler();
+        void destroy_texture_image_view();
+        void destroy_texture_image();
         void destroy_command_pool();
         void destroy_swapchain_frame_buffers();
         void destroy_graphics_pipeline();
@@ -226,6 +240,16 @@ namespace vk::tut {
         const uint32_t& type_filter,
         const VkMemoryPropertyFlags& properties
     );
+    VkCommandBuffer begin_single_time_commands(
+        const VkDevice& logical_device,
+        const VkCommandPool& command_pool
+    );
+    void end_single_time_commands(
+        const VkDevice& logical_device,
+        const VkCommandPool& command_pool,
+        const VkQueue& queue,
+        const VkCommandBuffer& command_buffer
+    );
     void create_and_allocate_buffer(
         const VkPhysicalDevice& physical_device,
         const VkDevice& logical_device,
@@ -242,6 +266,31 @@ namespace vk::tut {
         const VkBuffer& src_buffer,
         const VkBuffer& dest_buffer,
         const VkDeviceSize& buffer_size
+    );
+    void create_and_allocate_image(
+        const VkPhysicalDevice& physical_device,
+        const VkDevice& logical_device,
+        const int& width, const int& height,
+        const VkFormat& format, const VkImageTiling& tiling,
+        const VkImageUsageFlags& usage,
+        const VkMemoryPropertyFlags& memory_properties,
+        VkImage* ptr_image,
+        VkDeviceMemory* ptr_image_memory
+    );
+    void copy_buffer_to_image(
+        const VkDevice& logical_device,
+        const VkCommandPool& command_pool,
+        const VkQueue& queue,
+        const uint32_t& width, const uint32_t& height,
+        const VkBuffer& src_buffer, const VkImage& dst_image
+    );
+    void transition_image_layout(
+        const VkDevice& logical_device,
+        const VkCommandPool& command_pool,
+        const VkQueue& queue,
+        const VkImageLayout& old_layout,
+        const VkImageLayout& new_layout,
+        const VkImage& image
     );
 
     // < --------------------- END Helper functions -------------------- >

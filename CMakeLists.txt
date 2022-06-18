@@ -91,6 +91,7 @@ target_compile_definitions(
     learning_vulkan_lib PUBLIC
     _VK_TUT_VERTEX_SHADER_FILEPATH_="${CMAKE_CURRENT_BINARY_DIR}/shaders/basic_shader.vert.spv"
     _VK_TUT_FRAGMENT_SHADER_FILEPATH_="${CMAKE_CURRENT_BINARY_DIR}/shaders/basic_shader.frag.spv"
+    _VK_TUT_TEXTURE_PATH_="${CMAKE_CURRENT_SOURCE_DIR}/assets/textures/texture.jpg"
 )
 
 # < -------------- END learning_vulkan_lib target definition -------------- >

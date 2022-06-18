@@ -2,27 +2,43 @@
 #include "vk_tut/logging.h"
 #include "vk_tut/uniform.h"
 
+#include <array>
+
 namespace vk::tut {
     void Application::create_descriptor_set_layout() {
         // The variable that stores the result of any vulkan function called.
         VkResult result;
 
-        // Information about descriptor set layout
-        // binding for the vertex shader.
-        VkDescriptorSetLayoutBinding layout_binding{};
-        layout_binding.binding = 0; // Will bind at index 0.
-        layout_binding.descriptorType = VkDescriptorType
+        // Descriptor set binding for the uniform object.
+        VkDescriptorSetLayoutBinding uniform_layout_binding{};
+        uniform_layout_binding.binding = 0;
+        uniform_layout_binding.descriptorType = VkDescriptorType
             ::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        layout_binding.descriptorCount = 1;
-        layout_binding.stageFlags = VkShaderStageFlagBits
+        uniform_layout_binding.descriptorCount = 1;
+        uniform_layout_binding.stageFlags = VkShaderStageFlagBits
             ::VK_SHADER_STAGE_VERTEX_BIT;
+        
+        // Descriptor set for the texture.
+        VkDescriptorSetLayoutBinding texture_layout_binding{};
+        texture_layout_binding.binding = 1;
+        texture_layout_binding.descriptorCount = 1;
+        texture_layout_binding.descriptorType = VkDescriptorType
+            ::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        texture_layout_binding.stageFlags = VkShaderStageFlagBits
+            ::VK_SHADER_STAGE_FRAGMENT_BIT;
+
+        ::std::array<VkDescriptorSetLayoutBinding, 2> bindings = {
+            uniform_layout_binding, texture_layout_binding
+        };
 
         // Information about the descriptor set layout.
         VkDescriptorSetLayoutCreateInfo descriptor_set_layout_info{};
         descriptor_set_layout_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        descriptor_set_layout_info.bindingCount = 1;
-        descriptor_set_layout_info.pBindings = &layout_binding;
+        descriptor_set_layout_info.bindingCount = static_cast<uint32_t>(
+            bindings.size()
+        );
+        descriptor_set_layout_info.pBindings = bindings.data();
         
         // Create the descriptor set layout.
         result = vkCreateDescriptorSetLayout(
@@ -42,18 +58,27 @@ namespace vk::tut {
         // The variable that stores the result of any vulkan function called.
         VkResult result;
 
-        VkDescriptorPoolSize descriptor_pool_size{};
-        descriptor_pool_size.type = VkDescriptorType
+        ::std::array<VkDescriptorPoolSize, 2> descriptor_pool_sizes;
+
+        descriptor_pool_sizes[0].type = VkDescriptorType
             ::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptor_pool_size.descriptorCount = static_cast<uint32_t>(
+        descriptor_pool_sizes[0].descriptorCount = static_cast<uint32_t>(
+            m_swapchain_frame_buffers.size()
+        );
+
+        descriptor_pool_sizes[1].type = VkDescriptorType
+            ::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptor_pool_sizes[1].descriptorCount = static_cast<uint32_t>(
             m_swapchain_frame_buffers.size()
         );
 
         VkDescriptorPoolCreateInfo descriptor_pool_info{};
         descriptor_pool_info.sType = VkStructureType
             ::VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        descriptor_pool_info.poolSizeCount = 1;
-        descriptor_pool_info.pPoolSizes = &descriptor_pool_size;
+        descriptor_pool_info.poolSizeCount = static_cast<uint32_t>(
+            descriptor_pool_sizes.size()
+        );
+        descriptor_pool_info.pPoolSizes = descriptor_pool_sizes.data();
         descriptor_pool_info.maxSets = static_cast<uint32_t>(
             m_swapchain_frame_buffers.size()
         );
@@ -105,25 +130,48 @@ namespace vk::tut {
         // Populate descriptor sets with data.
         for (int i = 0; i < m_descriptor_sets.size(); i++) {
             // Provides handle to the corresponding uniform buffer.
-            VkDescriptorBufferInfo descriptor_buffer_info{};
-            descriptor_buffer_info.offset = 0;
-            descriptor_buffer_info.buffer = m_uniform_buffer;
-            descriptor_buffer_info.range = static_cast<VkDeviceSize>(
+            VkDescriptorBufferInfo uniform_buffer_info{};
+            uniform_buffer_info.offset = 0;
+            uniform_buffer_info.buffer = m_uniform_buffer;
+            uniform_buffer_info.range = static_cast<VkDeviceSize>(
                 sizeof(Uniform)
             );
 
-            VkWriteDescriptorSet descriptor_write{};
-            descriptor_write.sType = VkStructureType
+            VkDescriptorImageInfo image_info{};
+            image_info.imageLayout = VkImageLayout
+                ::VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+            image_info.imageView = m_texture_image_view;
+            image_info.sampler = m_texture_sampler;
+
+            ::std::array<VkWriteDescriptorSet, 2> descriptor_writes;
+
+            // Descriptor write for the uniform buffer.
+            descriptor_writes[0].sType = VkStructureType
                 ::VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptor_write.dstSet = m_descriptor_sets[i];
-            descriptor_write.descriptorType = VkDescriptorType
+            descriptor_writes[0].dstSet = m_descriptor_sets[i];
+            descriptor_writes[0].dstBinding = 0;
+            descriptor_writes[0].descriptorType = VkDescriptorType
                 ::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            descriptor_write.descriptorCount = 1;
-            descriptor_write.pBufferInfo = &descriptor_buffer_info;
+            descriptor_writes[0].descriptorCount = 1;
+            descriptor_writes[0].pBufferInfo = &uniform_buffer_info;
+            descriptor_writes[0].pNext = nullptr;
+
+            // Descriptor write for the texture.
+            descriptor_writes[1].sType = VkStructureType
+                ::VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptor_writes[1].dstSet = m_descriptor_sets[i];
+            descriptor_writes[1].dstBinding = 1;
+            descriptor_writes[1].dstArrayElement = 0;
+            descriptor_writes[1].descriptorType = VkDescriptorType
+                ::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+            descriptor_writes[1].descriptorCount = 1;
+            descriptor_writes[1].pImageInfo = &image_info;
+            descriptor_writes[1].pNext = nullptr;
 
             vkUpdateDescriptorSets(
-                m_logical_device, 1,
-                &descriptor_write, 0, nullptr
+                m_logical_device,
+                static_cast<uint32_t>(descriptor_writes.size()),
+                descriptor_writes.data(), 0, nullptr
             );
         }
 

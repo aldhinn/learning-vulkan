@@ -15,7 +15,7 @@ namespace vk::tut {
         m_vertices.reserve(vertices_count);
         // Define the origin.
         m_vertices.emplace_back(
-            Vertex({0.00f, 0.00f, -0.40f}, {0.00f, 0.00f, 0.00f})
+            Vertex({0.00f, 0.00f, -0.40f}, {0.00f, 0.00f, 0.00f}, {})
         );
         
         for (uint32_t i = 1; i < vertices_count; i++) {
@@ -39,6 +39,10 @@ namespace vk::tut {
                             (i * ::glm::radians(360.0f) / vertices_count) +
                             ::glm::radians(240.0f)
                         ) + 1.00f
+                    }, 
+                    {
+                        1.0f * ::glm::cos(i * ::glm::radians(360.0f) / vertices_count),
+                        1.0f * ::glm::sin(i * ::glm::radians(360.0f) / vertices_count)
                     }
                 )
             );
@@ -76,25 +80,29 @@ namespace vk::tut {
         m_vertices.emplace_back(
             Vertex(
                 { -0.50f, -0.50f, 0.50f },
-                square_colour
+                square_colour,
+                { 0.0f, 0.0f }
             )
         );
         m_vertices.emplace_back(
             Vertex(
                 { -0.50f, 0.50f, 0.50f },
-                square_colour
+                square_colour,
+                { 0.0f, 1.0f }
             )
         );
         m_vertices.emplace_back(
             Vertex(
                 { 0.50f, -0.50f, 0.50f },
-                square_colour
+                square_colour,
+                { 1.0f, 0.0f }
             )
         );
         m_vertices.emplace_back(
             Vertex(
                 { 0.50f, 0.50f, 0.50f },
-                square_colour
+                square_colour,
+                { 1.0f, 1.0f }
             )
         );
 

@@ -18,12 +18,14 @@ namespace vk::tut {
         // Copy initializer list.
         Vertex(
             const ::glm::vec3& _3D_position,
-            const ::glm::vec3& colour
+            const ::glm::vec3& colour,
+            const ::glm::vec2& texture_coordinate
         );
         // Move initializer list.
         Vertex(
             ::glm::vec3&& _3D_position,
-            ::glm::vec3&& colour
+            ::glm::vec3&& colour,
+            ::glm::vec2&& texture_coordinate
         );
 
         // Copy constructor.
@@ -49,9 +51,17 @@ namespace vk::tut {
         // Move setter for m_colour.
         void set_colour(::glm::vec3&&);
 
+        // Getter for m_texture_coordinate.
+        inline ::glm::vec2 get_texture_coordinate() const
+        { return m_texture_coordinate; }
+        // Copy setter for m_colour.
+        void set_texture_coordinate(const ::glm::vec2&);
+        // Move setter for m_colour.
+        void set_texture_coordinate(::glm::vec2&&);
+
         static VkVertexInputBindingDescription
         get_binding_description();
-        static std::array<VkVertexInputAttributeDescription, 2>
+        static std::array<VkVertexInputAttributeDescription, 3>
         get_attribute_descriptions();
 
     private:
@@ -59,6 +69,8 @@ namespace vk::tut {
         ::glm::vec3 m_3D_position;
         // The normalized RGB colour value.
         ::glm::vec3 m_colour;
+        // The texture coordinate.
+        ::glm::vec2 m_texture_coordinate;
     };
 }
 

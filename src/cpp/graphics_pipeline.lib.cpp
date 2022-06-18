@@ -10,7 +10,7 @@ namespace vk::tut {
 
         VkVertexInputBindingDescription binding_description =
             Vertex::get_binding_description();
-        std::array<VkVertexInputAttributeDescription, 2>
+        std::array<VkVertexInputAttributeDescription, 3>
         attribute_descriptions = Vertex::get_attribute_descriptions();
         
         // Information about how the input buffer layout.
@@ -35,9 +35,11 @@ namespace vk::tut {
         
         // Create shader modules.
         m_vertex_shader_module = create_shader_module(m_logical_device,
-            _VK_TUT_VERTEX_SHADER_FILEPATH_);
+            _VK_TUT_VERTEX_SHADER_FILEPATH_
+        );
         m_fragment_shader_module = create_shader_module(m_logical_device,
-            _VK_TUT_FRAGMENT_SHADER_FILEPATH_);
+            _VK_TUT_FRAGMENT_SHADER_FILEPATH_
+        );
 
         // Contains programmable pipeline stages.
         VkPipelineShaderStageCreateInfo shader_stages_info[2]{};

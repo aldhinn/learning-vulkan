@@ -30,6 +30,9 @@ namespace vk::tut {
         create_graphics_pipeline();
         create_swapchain_frame_buffers();
         create_command_pool();
+        create_texture_image();
+        create_texture_image_view();
+        create_texture_sampler();
         load_initial_mesh();
         create_mesh_buffer();
         create_uniform_buffer();
@@ -49,6 +52,9 @@ namespace vk::tut {
         destroy_descriptor_pool();
         destroy_uniform_buffer();
         destroy_mesh_buffer();
+        destroy_texture_sampler();
+        destroy_texture_image_view();
+        destroy_texture_image();
         destroy_command_pool();
         destroy_swapchain_frame_buffers();
         destroy_graphics_pipeline();

@@ -205,40 +205,9 @@ namespace vk::tut {
         const VkBuffer& dest_buffer,
         const VkDeviceSize& buffer_size
     ) {
-        // The variable that stores the result of any vulkan function called.
-        VkResult result;
-
-        // Information about the command to copy the src buffer
-        // data to the dest buffer data.
-        VkCommandBufferAllocateInfo copy_command_buffer_info{};
-        copy_command_buffer_info.sType = VkStructureType
-            ::VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        copy_command_buffer_info.level = VkCommandBufferLevel
-            ::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-        copy_command_buffer_info.commandPool = command_pool;
-        copy_command_buffer_info.commandBufferCount = 1;
-
-        // The command buffer that will record our copy command.
-        VkCommandBuffer copy_command_buffer;
-        result = vkAllocateCommandBuffers(
-            logical_device, &copy_command_buffer_info, &copy_command_buffer
+        VkCommandBuffer copy_command_buffer = begin_single_time_commands(
+            logical_device, command_pool
         );
-        if (result != VkResult::VK_SUCCESS) {
-            VK_TUT_LOG_ERROR("Failed to allocate command buffer.");
-        }
-        
-        // How the command buffer begins recording.
-        VkCommandBufferBeginInfo begin_info{};
-        begin_info.sType = VkStructureType
-            ::VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        begin_info.flags = VkCommandBufferUsageFlagBits
-            ::VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-        // Begin recording copying.
-        result = vkBeginCommandBuffer(copy_command_buffer, &begin_info);
-        if (result != VkResult::VK_SUCCESS) {
-            VK_TUT_LOG_ERROR("Failed to begin recording command buffer.");
-        }
         
         // Information about how the copy happens.
         VkBufferCopy copy_region{};
@@ -249,33 +218,9 @@ namespace vk::tut {
             copy_command_buffer, src_buffer,
             dest_buffer, 1, &copy_region
         );
-        
-        // End recording copying.
-        result = vkEndCommandBuffer(copy_command_buffer);
-        if (result != VkResult::VK_SUCCESS) {
-            VK_TUT_LOG_ERROR("Failed to record command buffer.");
-        }
 
-        // Submit the copying command.
-        VkSubmitInfo submitInfo{};
-        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submitInfo.commandBufferCount = 1;
-        submitInfo.pCommandBuffers = &copy_command_buffer;
-
-        result = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
-        if (result != VkResult::VK_SUCCESS) {
-            VK_TUT_LOG_ERROR("Failed to submit the copy command to the queue.");
-        }
-        // Wait until the queue is done.
-        result = vkQueueWaitIdle(queue);
-        if (result != VkResult::VK_SUCCESS) {
-            VK_TUT_LOG_ERROR("Failed to wait for queue.");
-        }
-
-        // Free this command buffer as it will
-        // no longer be used outside of this scope
-        vkFreeCommandBuffers(
-            logical_device, command_pool, 1, &copy_command_buffer
+        end_single_time_commands(
+            logical_device, command_pool, queue, copy_command_buffer
         );
     }
 }

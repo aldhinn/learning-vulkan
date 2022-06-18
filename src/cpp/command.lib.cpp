@@ -174,4 +174,83 @@ namespace vk::tut {
             VK_TUT_LOG_ERROR("Failed to record command buffer.");
         }
     }
+
+    VkCommandBuffer begin_single_time_commands(
+        const VkDevice& logical_device,
+        const VkCommandPool& command_pool
+    ) {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
+        // Information about the command
+        VkCommandBufferAllocateInfo command_buffer_info{};
+        command_buffer_info.sType = VkStructureType
+            ::VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        command_buffer_info.level = VkCommandBufferLevel
+            ::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        command_buffer_info.commandPool = command_pool;
+        command_buffer_info.commandBufferCount = 1;
+
+        // The command buffer that will record the command.
+        VkCommandBuffer command_buffer;
+        result = vkAllocateCommandBuffers(
+            logical_device, &command_buffer_info, &command_buffer
+        );
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to allocate command buffer.");
+        }
+        
+        // How the command buffer begins recording.
+        VkCommandBufferBeginInfo begin_info{};
+        begin_info.sType = VkStructureType
+            ::VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        begin_info.flags = VkCommandBufferUsageFlagBits
+            ::VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+        // Begin recording.
+        result = vkBeginCommandBuffer(command_buffer, &begin_info);
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to begin recording command buffer.");
+        }
+
+        return command_buffer;
+    }
+
+    void end_single_time_commands(
+        const VkDevice& logical_device,
+        const VkCommandPool& command_pool,
+        const VkQueue& queue,
+        const VkCommandBuffer& command_buffer
+    ) {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
+        // End recording.
+        result = vkEndCommandBuffer(command_buffer);
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to record command buffer.");
+        }
+
+        // Submit the command.
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &command_buffer;
+
+        result = vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to submit the command to the queue.");
+        }
+        // Wait until the queue is done.
+        result = vkQueueWaitIdle(queue);
+        if (result != VkResult::VK_SUCCESS) {
+            VK_TUT_LOG_ERROR("Failed to wait for queue.");
+        }
+
+        // Free this command buffer as it will
+        // no longer be used outside of this scope
+        vkFreeCommandBuffers(
+            logical_device, command_pool, 1, &command_buffer
+        );
+    }
 }

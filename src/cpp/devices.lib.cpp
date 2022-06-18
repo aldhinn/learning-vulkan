@@ -39,10 +39,14 @@ namespace vk::tut {
             SwapChainSupportDetails swapchain_support_details =
                 query_swapchain_support(physical_device, m_surface);
             
+            VkPhysicalDeviceFeatures supported_features;
+            vkGetPhysicalDeviceFeatures(physical_device, &supported_features);
+            
             bool physical_device_suitable = indices.is_complete() &&
                 check_device_extension_support(physical_device,
                 m_enabled_extensions) &&
-                swapchain_support_details.is_swapchain_support_adequate();
+                swapchain_support_details.is_swapchain_support_adequate() &&
+                supported_features.samplerAnisotropy;
 
             // Select the suitable device.
             if (physical_device_suitable) {
@@ -92,6 +96,7 @@ namespace vk::tut {
 
         // Information about the device features to be enabled.
         VkPhysicalDeviceFeatures enabled_device_features{};
+        enabled_device_features.samplerAnisotropy = VK_TRUE;
 
         // Information about the logical device.
         VkDeviceCreateInfo logical_device_info{};
