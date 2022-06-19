@@ -132,7 +132,7 @@ namespace vk::tut {
             // Provides handle to the corresponding uniform buffer.
             VkDescriptorBufferInfo uniform_buffer_info{};
             uniform_buffer_info.offset = 0;
-            uniform_buffer_info.buffer = m_uniform_buffer;
+            uniform_buffer_info.buffer = m_uniform_buffers[i];
             uniform_buffer_info.range = static_cast<VkDeviceSize>(
                 sizeof(Uniform)
             );
@@ -150,6 +150,7 @@ namespace vk::tut {
                 ::VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptor_writes[0].dstSet = m_descriptor_sets[i];
             descriptor_writes[0].dstBinding = 0;
+            descriptor_writes[0].dstArrayElement = 0;
             descriptor_writes[0].descriptorType = VkDescriptorType
                 ::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             descriptor_writes[0].descriptorCount = 1;

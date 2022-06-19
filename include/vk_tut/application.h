@@ -121,10 +121,10 @@ namespace vk::tut {
         VkBuffer m_mesh_buffer;
         // The handle to the memory of the mesh buffer in the GPU.
         VkDeviceMemory m_mesh_buffer_memory;
-        // The handle to the buffer containing uniform data.
-        VkBuffer m_uniform_buffer;
-        // The handle to the memory of the uniform buffer in the GPU.
-        VkDeviceMemory m_uniform_buffer_memory;
+        // The handles to the buffer containing uniform data.
+        ::std::vector<VkBuffer> m_uniform_buffers;
+        // The handles to the memory of the uniform buffer in the GPU.
+        ::std::vector<VkDeviceMemory> m_uniform_buffer_memories;
         // The descriptor pool handle.
         VkDescriptorPool m_descriptor_pool;
         // The handles to the descriptor sets.
@@ -161,7 +161,7 @@ namespace vk::tut {
         void create_texture_image_view();
         void create_texture_sampler();
         void create_mesh_buffer();
-        void create_uniform_buffer();
+        void create_uniform_buffers();
         void create_descriptor_pool();
         void create_descriptor_sets();
         void create_command_buffers();
@@ -173,7 +173,7 @@ namespace vk::tut {
 
         void destroy_sync_objects();
         void destroy_descriptor_pool();
-        void destroy_uniform_buffer();
+        void destroy_uniform_buffers();
         void destroy_mesh_buffer();
         void destroy_texture_sampler();
         void destroy_texture_image_view();

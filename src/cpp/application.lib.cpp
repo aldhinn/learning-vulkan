@@ -35,7 +35,7 @@ namespace vk::tut {
         create_texture_sampler();
         load_initial_mesh();
         create_mesh_buffer();
-        create_uniform_buffer();
+        create_uniform_buffers();
         create_descriptor_pool();
         create_descriptor_sets();
         create_command_buffers();
@@ -50,7 +50,7 @@ namespace vk::tut {
 
         destroy_sync_objects();
         destroy_descriptor_pool();
-        destroy_uniform_buffer();
+        destroy_uniform_buffers();
         destroy_mesh_buffer();
         destroy_texture_sampler();
         destroy_texture_image_view();
@@ -238,7 +238,7 @@ namespace vk::tut {
         // Update the data of the uniform buffer.
         void* data;
         result = vkMapMemory(
-            m_logical_device, m_uniform_buffer_memory,
+            m_logical_device, m_uniform_buffer_memories[m_current_frame_index],
             0, sizeof(Uniform), 0, &data
         );
         if (result != VkResult::VK_SUCCESS) {
@@ -246,7 +246,7 @@ namespace vk::tut {
         }
         memcpy(data, &uniform, sizeof(Uniform));
         vkUnmapMemory(m_logical_device,
-            m_uniform_buffer_memory
+            m_uniform_buffer_memories[m_current_frame_index]
         );
     }
 }

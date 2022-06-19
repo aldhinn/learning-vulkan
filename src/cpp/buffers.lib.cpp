@@ -82,26 +82,51 @@ namespace vk::tut {
         VK_TUT_LOG_DEBUG("Successfully created and allocated objects buffer.");
     }
 
-    void Application::create_uniform_buffer() {
+    void Application::create_uniform_buffers() {
+        // The variable that stores the result of any vulkan function called.
+        VkResult result;
+
         // Allocate a uniform buffer with the size of Uniform times
         // the number of swapchain frame buffers.
-        create_and_allocate_buffer(
-            m_physical_device, m_logical_device,
-            static_cast<VkDeviceSize>(
-                sizeof(Uniform)
-            ),
-            VkBufferUsageFlagBits::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
-            VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-            &m_uniform_buffer, &m_uniform_buffer_memory
-        );
+        m_uniform_buffers.reserve(m_swapchain_frame_buffers.size());
+        m_uniform_buffer_memories.reserve(m_uniform_buffers.size());
 
-        VK_TUT_LOG_DEBUG("Successfully created and allocated uniform buffer.");
+        for (int i = 0; i < m_uniform_buffers.capacity(); i++) {
+            // The uniform buffer to be created.
+            VkBuffer uniform_buffer;
+            // The uniform buffer device memory to be allocated to.
+            VkDeviceMemory uniform_buffer_memory;
+
+            create_and_allocate_buffer(
+                m_physical_device, m_logical_device,
+                static_cast<VkDeviceSize>(
+                    sizeof(Uniform)
+                ),
+                VkBufferUsageFlagBits::VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_COHERENT_BIT |
+                VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                &uniform_buffer, &uniform_buffer_memory
+            );
+
+            m_uniform_buffers.emplace_back(::std::move(uniform_buffer));
+            m_uniform_buffer_memories.emplace_back(
+                ::std::move(uniform_buffer_memory)
+            );
+        }
+
+        VK_TUT_LOG_DEBUG("Successfully created and allocated uniform buffers.");
     }
 
-    void Application::destroy_uniform_buffer() {
-        vkFreeMemory(m_logical_device, m_uniform_buffer_memory, nullptr);
-        vkDestroyBuffer(m_logical_device, m_uniform_buffer, nullptr);
+    void Application::destroy_uniform_buffers() {
+        for (const VkDeviceMemory& uniform_buffer_memory :
+        m_uniform_buffer_memories) {
+            vkFreeMemory(m_logical_device, uniform_buffer_memory, nullptr);
+        }
+        m_uniform_buffer_memories.clear();
+        for (const VkBuffer& uniform_buffer : m_uniform_buffers) {
+            vkDestroyBuffer(m_logical_device, uniform_buffer, nullptr);
+        }
+        m_uniform_buffers.clear();
 
         VK_TUT_LOG_DEBUG("Destroyed uniform buffer.");
     }
