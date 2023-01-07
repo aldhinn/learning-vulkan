@@ -11,7 +11,7 @@ namespace vk::tut {
     class VulkanApiTests : public ::testing::Test {
     protected:
         // The handle to the Vulkan library.
-        VkInstance m_vulkan_instance;
+        VkInstance m_vulkan_instance = nullptr;
 
         // Runs before each test.
         inline void SetUp() override {
@@ -29,8 +29,11 @@ namespace vk::tut {
         }
         // Runs after each test.
         inline void TearDown() override {
+            if (m_vulkan_instance == nullptr) return;
+
             // Destroy the vulkan instance handle.
             vkDestroyInstance(m_vulkan_instance, nullptr);
+            m_vulkan_instance = nullptr;
             cout << "\n";
         }
     };
