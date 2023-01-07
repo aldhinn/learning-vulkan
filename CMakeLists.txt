@@ -85,7 +85,7 @@ target_link_libraries(
     learning_vulkan_lib PUBLIC
     ${Vulkan_LIBRARIES}
     glfw
-    glm::glm
+    glm
 )
 target_compile_definitions(
     learning_vulkan_lib PUBLIC
