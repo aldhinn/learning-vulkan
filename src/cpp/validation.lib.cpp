@@ -105,8 +105,11 @@ namespace vk::tut {
         const VkDebugUtilsMessengerCallbackDataEXT* ptr_callback_data,
         void* ptr_user_data
     ) {
-        ::std::cerr << "\033[0;92m[" << "VULKAN"
+        // Ignore below error.
+        if (message_severity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+            ::std::cerr << "\033[0;92m[" << "VULKAN"
             << "]\033[0m " << ptr_callback_data->pMessage << "\n";
+        }
 
         return VK_FALSE;
     }
