@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 project(learning_vulkan)
 
+include(FetchContent)
+
 # < ---------------------- Enforcing C++ 20 standard ---------------------- >
 
 if (MSVC)
@@ -16,28 +18,35 @@ endif()
 # < ----------------------------- Dependencies ---------------------------- >
 
 find_package(Vulkan REQUIRED)
-find_package(GTest)
-if (NOT GTest_FOUND)
-    # Will add the submodule for googletest if not installed in the system.  
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/googletest/)
-endif()
-find_package(glfw3)
-if (NOT glfw3_FOUND)
-    # Will add the submodule for glfw if not installed in the system.
-    set(GLFW_BUILD_EXAMPLES OFF)
-    set(GLFW_BUILD_TESTS OFF)
-    set(GLFW_BUILD_DOCS OFF)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/glfw/)
-endif()
-find_package(glm)
-if (NOT glm_FOUND)
-    # Will add the submodule for glm if not installed in the system.
-    set(GLM_TEST_ENABLE OFF)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/third_party/glm/)
-endif()
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/stb/
+
+FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY      https://github.com/google/googletest.git
+    GIT_TAG             v1.15.2
 )
+FetchContent_MakeAvailable(googletest)
+include(GoogleTest)
+
+FetchContent_Declare(
+    glfw
+    GIT_REPOSITORY      https://github.com/glfw/glfw.git
+    GIT_TAG             3.4
+)
+FetchContent_MakeAvailable(glfw)
+
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY      https://github.com/g-truc/glm.git
+    GIT_TAG             1.0.1
+)
+FetchContent_MakeAvailable(glm)
+
+FetchContent_Declare(
+    stb
+    GIT_REPOSITORY      https://github.com/nothings/stb.git
+    GIT_TAG             master
+)
+FetchContent_MakeAvailable(stb)
 
 # < --------------------------- END Dependencies -------------------------- >
 
@@ -80,6 +89,7 @@ target_include_directories(
     learning_vulkan_lib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/
     ${Vulkan_INCLUDE_DIR}
+    ${stb_SOURCE_DIR}
 )
 target_link_libraries(
     learning_vulkan_lib PUBLIC
